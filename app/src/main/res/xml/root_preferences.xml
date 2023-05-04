@@ -1,0 +1,36 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="@string/working_mode">
+
+        <SwitchPreferenceCompat
+            app:key="lsp_hook"
+            app:enabled="true"
+            app:summaryOn="@string/use_lsp_summary_off"
+            app:summaryOff="@string/use_lsp_summary_on"
+            app:title="@string/use_lsp" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/system_ui">
+
+        <ListPreference
+            app:defaultValue="follow_system"
+            app:entries="@array/theme_titles"
+            app:entryValues="@array/theme_values"
+            app:key="theme_key"
+            app:title="主题"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:defaultValue="follow_system"
+            app:entries="@array/language_titles"
+            app:entryValues="@array/language_values"
+            app:key="language_key"
+            app:title="语言"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

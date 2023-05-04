@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/colorThemeBackground"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.activity.InfoActivity">
+
+    <include
+        android:id="@+id/include_title_bar_second"
+        layout="@layout/include_title_bar_second"/>
+
+    <ListView
+        android:id="@+id/collect_item_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:dividerHeight="1dp"
+        android:divider="@android:color/darker_gray"/>
+
+</LinearLayout>
