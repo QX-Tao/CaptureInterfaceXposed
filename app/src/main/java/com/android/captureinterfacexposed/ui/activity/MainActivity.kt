@@ -31,7 +31,6 @@ import com.android.captureinterfacexposed.service.ScreenShotService
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
 import com.android.captureinterfacexposed.utils.CurrentCollectUtil
 import com.android.captureinterfacexposed.utils.ConfigUtil
-import com.android.captureinterfacexposed.utils.ShareUtil
 import com.highcapable.yukihookapi.YukiHookAPI
 
 
@@ -39,9 +38,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     companion object{
         @JvmStatic
-        private val IS_FIRST = "is_first"
-        @JvmStatic
         private val LSP_HOOK = "lsp_hook"
+        @JvmStatic
+        private val WORK_MODE = "work_mode"
         @JvmStatic
         private val REQUEST_PERMISSIONS_CODE = 123
         @JvmStatic
@@ -60,8 +59,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             val (appName, packageName) = it
             binding.tvSelectAppTitle.text = "已选择: $appName"
             binding.tvSelectAppDesc.text = "包名: $packageName"
-            ShareUtil.putString(applicationContext,SELECT_APP_NAME,appName)
-            ShareUtil.putString(applicationContext,SELECT_PACKAGE_NAME,packageName)
+            ConfigUtil.getInstance(applicationContext).putString(SELECT_APP_NAME,appName)
+            ConfigUtil.getInstance(applicationContext).putString(SELECT_PACKAGE_NAME,packageName)
             binding.llSelectAppMenu.visibility = View.VISIBLE
         }
     }
@@ -75,8 +74,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         refreshModuleStatus()
         refreshSelectStatus()
 
-        // isFirst -> select a work mode
-        if (isFirst()) { selectWorkModeDialog() }
+        // isSelectWorkMode -> select a work mode
+        if (!isSelectWorkMode()) { selectWorkModeDialog() }
         // running -> check permission
         else { checkRunningPermission() }
 
@@ -94,14 +93,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
         // select_app -> to SelectAppActivity, compile in method refreshModuleStatus()
         binding.tvOpenApp.setOnClickListener {
-            val packageName = ShareUtil.getString(applicationContext, SELECT_PACKAGE_NAME,null)
+            val packageName = ConfigUtil.getInstance(applicationContext).getString(SELECT_PACKAGE_NAME,null)
             if (packageName != null){
                 DefaultApplication.startApp(packageName)
             }
         }
         binding.tvClearSelect.setOnClickListener {
-            ShareUtil.putString(applicationContext,SELECT_APP_NAME,null)
-            ShareUtil.putString(applicationContext,SELECT_PACKAGE_NAME,null)
+            ConfigUtil.getInstance(applicationContext).putString(SELECT_APP_NAME,null)
+            ConfigUtil.getInstance(applicationContext).putString(SELECT_PACKAGE_NAME,null)
             refreshSelectStatus()
         }
 
@@ -141,7 +140,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             isServiceStart = false
         }
         binding.btStartCollect.setOnClickListener {
-            val hookPackageName = ShareUtil.getString(applicationContext, SELECT_PACKAGE_NAME,null)
+            val hookPackageName = ConfigUtil.getInstance(applicationContext).getString(SELECT_PACKAGE_NAME,null)
             if(isServiceStart){
                 when(getWorkModeStatus()){
                     -1 ->{
@@ -182,8 +181,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 binding.ivWorkMode.setImageResource(R.drawable.ic_success_white)
                 binding.tvWorkModeTitle.text = "普通模式"
                 binding.tvWorkModeDesc.text = "使用普通模式运行中"
-                ShareUtil.putString(applicationContext,SELECT_APP_NAME,null)
-                ShareUtil.putString(applicationContext,SELECT_PACKAGE_NAME,null)
+                ConfigUtil.getInstance(applicationContext).putString(SELECT_APP_NAME,null)
+                ConfigUtil.getInstance(applicationContext).putString(SELECT_PACKAGE_NAME,null)
                 refreshSelectStatus()
                 binding.llSelectApp.setOnClickListener {
                     Toast.makeText(applicationContext,"普通模式下不需要选择应用",Toast.LENGTH_SHORT).show()
@@ -217,8 +216,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      * 刷新选择应用
      */
     private fun refreshSelectStatus(){
-        val appName = ShareUtil.getString(applicationContext, SELECT_APP_NAME, null )
-        val packageName = ShareUtil.getString(applicationContext, SELECT_PACKAGE_NAME, null)
+        val appName = ConfigUtil.getInstance(applicationContext).getString(SELECT_APP_NAME,null)
+        val packageName = ConfigUtil.getInstance(applicationContext).getString(SELECT_PACKAGE_NAME,null)
         if (appName == null){
             binding.tvSelectAppTitle.text = getString(R.string.select_app)
         } else {
@@ -306,17 +305,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     /**
-     * first to enter app
+     * is select work mode -> is need to display dialog
      *
-     * 第一次进入应用
+     * 是否已选择工作模式
      */
-    private fun isFirst(): Boolean {
-        val isFirst = ConfigUtil.getInstance(applicationContext).getString(IS_FIRST,"yes");
-        if(isFirst == "yes"){
-            ConfigUtil.getInstance(applicationContext).putString(IS_FIRST,"no")
-            return true
-        }
-        return false
+    private fun isSelectWorkMode(): Boolean {
+        ConfigUtil.getInstance(applicationContext).getString(WORK_MODE,null)
+            ?: return false
+        return true
     }
 
     /**
@@ -329,17 +325,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         val alertDialog: AlertDialog = builder.setTitle("工作模式")
             .setMessage("在第一次打开应用时 需要选择工作模式")
             .setPositiveButton("普通模式"){ _, _ ->
-                ShareUtil.putBoolean(applicationContext, LSP_HOOK, false)
-                ShareUtil.putBooleanDefault(applicationContext, LSP_HOOK, false)
+                ConfigUtil.getInstance(applicationContext).putString(LSP_HOOK,false.toString())
+                ConfigUtil.getInstance(applicationContext).putString(WORK_MODE,true.toString())
                 refreshModuleStatus()
             }
             .setNegativeButton("LSP注入", null)
+            .setCancelable(false)
             .show()
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(
             View.OnClickListener {
                 if (DefaultApplication.isDeviceRooted()) {
-                    ShareUtil.putBoolean(applicationContext, LSP_HOOK, true)
-                    ShareUtil.putBooleanDefault(applicationContext, LSP_HOOK, true)
+                    ConfigUtil.getInstance(applicationContext).putString(LSP_HOOK,true.toString())
+                    ConfigUtil.getInstance(applicationContext).putString(WORK_MODE,true.toString())
                     DefaultApplication.enableLSP(packageName)
                 } else {
                     alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).visibility = View.GONE
@@ -628,8 +625,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      * 返回运行模式：普通、LSP（未激活）、LSP（已激活）
      */
     private fun getWorkModeStatus() : Int {
-        val isLspHook = ShareUtil.getBoolean(applicationContext, LSP_HOOK,false)
-        return if(isLspHook) {
+        val isLspHook = ConfigUtil.getInstance(applicationContext).getString(LSP_HOOK,null)
+        return if(isLspHook == true.toString()) {
             if(YukiHookAPI.Status.isXposedModuleActive){
                 1
             } else {

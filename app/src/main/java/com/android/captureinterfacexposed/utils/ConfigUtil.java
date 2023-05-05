@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ConfigUtil {
 
@@ -42,7 +43,15 @@ public class ConfigUtil {
     }
 
     public String getString(String key, String defaultValue) {
-        return mCache.getOrDefault(key, defaultValue);
+        if (mCache.containsKey(key)) {
+            if(Objects.equals(mCache.get(key), "null")){
+                return null;
+            } else {
+                return mCache.get(key);
+            }
+        } else {
+            return defaultValue;
+        }
     }
 
     private void loadCache() {
