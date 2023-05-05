@@ -30,6 +30,7 @@ import com.android.captureinterfacexposed.service.FloatWindowService
 import com.android.captureinterfacexposed.service.ScreenShotService
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
 import com.android.captureinterfacexposed.utils.CurrentCollectUtil
+import com.android.captureinterfacexposed.utils.ConfigUtil
 import com.android.captureinterfacexposed.utils.ShareUtil
 import com.highcapable.yukihookapi.YukiHookAPI
 
@@ -38,7 +39,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     companion object{
         @JvmStatic
-        private val SHARE_IS_FIRST = "isFirst"
+        private val IS_FIRST = "is_first"
         @JvmStatic
         private val LSP_HOOK = "lsp_hook"
         @JvmStatic
@@ -310,9 +311,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      * 第一次进入应用
      */
     private fun isFirst(): Boolean {
-        val isFirst = ShareUtil.getBoolean(applicationContext, SHARE_IS_FIRST,true)
-        if(isFirst){
-            ShareUtil.putBoolean(applicationContext, SHARE_IS_FIRST,false)
+        val isFirst = ConfigUtil.getInstance(applicationContext).getString(IS_FIRST,"yes");
+        if(isFirst == "yes"){
+            ConfigUtil.getInstance(applicationContext).putString(IS_FIRST,"no")
             return true
         }
         return false

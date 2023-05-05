@@ -3,8 +3,17 @@ package com.android.captureinterfacexposed.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Xml;
 
 import androidx.preference.PreferenceManager;
+
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * @author: panyitao
