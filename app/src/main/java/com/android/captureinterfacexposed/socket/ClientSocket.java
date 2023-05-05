@@ -3,7 +3,7 @@ package com.android.captureinterfacexposed.socket;
 import android.content.Context;
 
 import com.android.captureinterfacexposed.utils.CollectDataUtil;
-import com.android.captureinterfacexposed.utils.CurrentClickUtil;
+import com.android.captureinterfacexposed.utils.CurrentCollectUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,7 +43,7 @@ public class ClientSocket {
             // 从服务端接收消息并打印
             in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
             String packageName = in.readLine();
-            CurrentClickUtil.setClickPackageName(packageName);
+            CurrentCollectUtil.setCollectPackageName(packageName);
             String serverMsg = in.readLine();
             CollectDataUtil.getInstance(mContext.getApplicationContext()).setSdkJson(serverMsg);
             countDownLatch.countDown();

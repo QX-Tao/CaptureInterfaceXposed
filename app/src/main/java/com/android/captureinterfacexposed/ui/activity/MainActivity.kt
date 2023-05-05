@@ -29,6 +29,7 @@ import com.android.captureinterfacexposed.service.CaptureInterfaceAccessibilityS
 import com.android.captureinterfacexposed.service.FloatWindowService
 import com.android.captureinterfacexposed.service.ScreenShotService
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
+import com.android.captureinterfacexposed.utils.CurrentCollectUtil
 import com.android.captureinterfacexposed.utils.ShareUtil
 import com.highcapable.yukihookapi.YukiHookAPI
 
@@ -155,6 +156,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                         if (hookPackageName == null) {
                             Toast.makeText(applicationContext, "包名错误，请重试。", Toast.LENGTH_SHORT).show()
                         } else {
+                            CurrentCollectUtil.setCollectPackageName(hookPackageName)
+                            CurrentCollectUtil.setRightButtonClickable(false)
                             DefaultApplication.enableHookByLSP(packageName, hookPackageName)
                         }
                     }
@@ -390,6 +393,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun setUpFloatingView() {
         floatingView.setActivity(this)
+        floatingView.processData()
         floatingView.startFloatingView()
     }
 

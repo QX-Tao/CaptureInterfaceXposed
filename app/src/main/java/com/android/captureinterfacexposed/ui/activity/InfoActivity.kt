@@ -2,7 +2,6 @@ package com.android.captureinterfacexposed.ui.activity
 
 import android.app.ProgressDialog
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -101,8 +100,8 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
 
         private class ViewHolder(view: View) {
             val pageCollectIcon: ImageView = view.findViewById(R.id.collect_page_image_view)
-            val pageCollectData: TextView = view.findViewById(R.id.page_collect_data_text_view)
-            val pageCollectNum: TextView = view.findViewById(R.id.page_collect_num_text_view)
+            val pageCollectData: TextView = view.findViewById(R.id.collect_page_data_text_view)
+            val pageCollectNum: TextView = view.findViewById(R.id.collect_page_num_text_view)
         }
 
     }

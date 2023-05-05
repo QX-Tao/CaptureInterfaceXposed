@@ -14,8 +14,6 @@
     <ListView
         android:id="@+id/collect_item_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:dividerHeight="1dp"
-        android:divider="@android:color/darker_gray"/>
+        android:layout_height="match_parent"/>
 
 </LinearLayout>

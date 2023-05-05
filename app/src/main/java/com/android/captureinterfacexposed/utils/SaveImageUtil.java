@@ -41,13 +41,13 @@ public class SaveImageUtil {
         } else {
             suffix = format.name();
         }
-        String fileName = imageName + "(" + CurrentClickUtil.getInterfaceNum() + ")." + suffix.toLowerCase();
+        String fileName = imageName + "(" + CurrentCollectUtil.getInterfaceNum() + ")." + suffix.toLowerCase();
 
         if (!isGranted(context)) {
             Log.e("ImageUtils", "save to album need storage permission");
             return null;
         }
-        String picDir = CurrentClickUtil.getClickFilePath() + File.separator + fileName;
+        String picDir = CurrentCollectUtil.getCollectFilePath() + File.separator + fileName;
         File destFile = new File(picDir);
         if (!save(bitmap, destFile, format, quality, recycle))
             return null;

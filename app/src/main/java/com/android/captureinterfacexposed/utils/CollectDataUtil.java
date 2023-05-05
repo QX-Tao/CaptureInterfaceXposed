@@ -61,20 +61,20 @@ public class CollectDataUtil {
     }
 
     public void saveCollectData() throws IOException {
-        if(CurrentClickUtil.getClickFilePath() == null){
+        if(CurrentCollectUtil.getCollectFilePath() == null){
             Log.e("Data Collect","path null error");
             return;
         }
-        String sdkFileName = "SDK" + "_" + "TreeView(" + CurrentClickUtil.getInterfaceNum() +").json";
-        String sdkFtrFilePath = CurrentClickUtil.getClickFilePath() + File.separator + sdkFileName;
+        String sdkFileName = "SDK" + "_" + "TreeView(" + CurrentCollectUtil.getInterfaceNum() +").json";
+        String sdkFtrFilePath = CurrentCollectUtil.getCollectFilePath() + File.separator + sdkFileName;
         File sdkSaveFile = new File(sdkFtrFilePath);
         RandomAccessFile sdkRaf = new RandomAccessFile(sdkSaveFile, "rwd");
         sdkRaf.seek(sdkSaveFile.length());
         sdkRaf.write(sdkJson.getBytes());
         sdkRaf.close();
 
-        String accessibleFileName = "无障碍" + "_" + "TreeView(" + CurrentClickUtil.getInterfaceNum() + ").json";
-        String accessibleFilePath = CurrentClickUtil.getClickFilePath() + File.separator + accessibleFileName;
+        String accessibleFileName = "无障碍" + "_" + "TreeView(" + CurrentCollectUtil.getInterfaceNum() + ").json";
+        String accessibleFilePath = CurrentCollectUtil.getCollectFilePath() + File.separator + accessibleFileName;
         File accessibleSaveFile = new File(accessibleFilePath);
         RandomAccessFile accessRaf = new RandomAccessFile(accessibleSaveFile, "rwd");
         accessRaf.seek(accessibleSaveFile.length());

@@ -9,7 +9,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.android.captureinterfacexposed.utils.factory.ChannelFactory;
 import com.android.captureinterfacexposed.utils.CollectDataUtil;
-import com.android.captureinterfacexposed.utils.CurrentClickUtil;
+import com.android.captureinterfacexposed.utils.CurrentCollectUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -113,7 +113,7 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
      * @throws IOException
      */
     public void JsonToFIle(JSONObject jsonObject) throws IOException {
-        if(CurrentClickUtil.getClickFilePath() != null) {
+        if(CurrentCollectUtil.getCollectFilePath() != null) {
             String json = jsonObject.toString();
             CollectDataUtil.getInstance(getApplicationContext()).setAccessibleJson(json);
         }
