@@ -2,12 +2,14 @@ package com.android.captureinterfacexposed.ui.activity
 
 import android.Manifest
 import android.app.Activity
+import android.app.ProgressDialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -29,8 +31,8 @@ import com.android.captureinterfacexposed.service.CaptureInterfaceAccessibilityS
 import com.android.captureinterfacexposed.service.FloatWindowService
 import com.android.captureinterfacexposed.service.ScreenShotService
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
-import com.android.captureinterfacexposed.utils.CurrentCollectUtil
 import com.android.captureinterfacexposed.utils.ConfigUtil
+import com.android.captureinterfacexposed.utils.CurrentCollectUtil
 import com.highcapable.yukihookapi.YukiHookAPI
 
 
@@ -53,6 +55,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private var isServiceStart = false
     private var floatingView = FloatWindowService(this)
+    private lateinit var loadingDialog: ProgressDialog
 
     private val startSelectAppActivityForResult = registerForActivityResult(SelectAppActivityResultContract()){ result ->
         result?.let {
@@ -156,6 +159,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                         if (hookPackageName == null) {
                             Toast.makeText(applicationContext, "包名错误，请重试。", Toast.LENGTH_SHORT).show()
                         } else {
+                            if(CurrentCollectUtil.getCollectPackageName() != null){
+                                DefaultApplication.killApp(CurrentCollectUtil.getCollectPackageName())
+                            }
                             CurrentCollectUtil.setCollectPackageName(hookPackageName)
                             CurrentCollectUtil.setRightButtonClickable(false)
                             DefaultApplication.enableHookByLSP(packageName, hookPackageName)
@@ -391,8 +397,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun setUpFloatingView() {
         floatingView.setActivity(this)
-        floatingView.processData()
-        floatingView.startFloatingView()
+        loadingDialog = ProgressDialog.show(this@MainActivity,"数据加载中", "请稍后...", true, false)
+        LoadDataTask().execute()
     }
 
     /**
@@ -402,6 +408,24 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun stopFloatingView() {
         floatingView.stopFloatingView()
+    }
+
+    /**
+     * load data task
+     *
+     * 加载数据
+     */
+    private inner class LoadDataTask : AsyncTask<Void?, Void?, Void?>() {
+        @Deprecated("Deprecated in Java")
+        override fun doInBackground(vararg params: Void?): Void? {
+            floatingView.processData()
+            return null
+        }
+        @Deprecated("Deprecated in Java")
+        override fun onPostExecute(aVoid: Void?) {
+            floatingView.startFloatingView()
+            loadingDialog.dismiss() // 关闭进度条
+        }
     }
 
 
