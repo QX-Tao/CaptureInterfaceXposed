@@ -59,6 +59,14 @@ public class PageDataHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    // clearDatabase
+    public void clearDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_PAGES);
+        db.execSQL("DELETE FROM " + TABLE_COLLECT);
+        db.close();
+    }
+
     // Add a new page to the pages table
     public long addPage(String pkgName,String appName, int pageNum) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -204,6 +212,15 @@ public class PageDataHelper extends SQLiteOpenHelper {
             Log.e(TAG, "Error while getting pageCollects: " + e.getMessage());
         }
         return pageCollects;
+    }
+
+    // update pageNum by given a pageId
+    public void updatePageNumByPageId(long pageId, int pageNum) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PAGES_PAGE_NUM, pageNum);
+        db.update(TABLE_PAGES, values, COLUMN_PAGES_ID + " = ?", new String[]{String.valueOf(pageId)});
+        db.close();
     }
 
 

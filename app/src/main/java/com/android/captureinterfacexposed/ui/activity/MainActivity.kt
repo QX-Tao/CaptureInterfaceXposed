@@ -9,9 +9,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.AsyncTask
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
 import android.text.TextUtils.SimpleStringSplitter
@@ -27,6 +25,7 @@ import com.android.captureinterfacexposed.BuildConfig
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.application.DefaultApplication
 import com.android.captureinterfacexposed.databinding.ActivityMainBinding
+import com.android.captureinterfacexposed.db.PageDataHelper
 import com.android.captureinterfacexposed.service.CaptureInterfaceAccessibilityService
 import com.android.captureinterfacexposed.service.FloatWindowService
 import com.android.captureinterfacexposed.service.ScreenShotService
@@ -34,7 +33,10 @@ import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
 import com.android.captureinterfacexposed.utils.ConfigUtil
 import com.android.captureinterfacexposed.utils.CurrentCollectUtil
 import com.highcapable.yukihookapi.YukiHookAPI
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.File
 
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
@@ -56,6 +58,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private var isServiceStart = false
     private var floatingView = FloatWindowService(this)
     private lateinit var loadingDialog: ProgressDialog
+    private var isNeedProcessData = false
 
     private val startSelectAppActivityForResult = registerForActivityResult(SelectAppActivityResultContract()){ result ->
         result?.let {
@@ -81,6 +84,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         if (!isSelectWorkMode()) { selectWorkModeDialog() }
         // running -> check permission
         else { checkRunningPermission() }
+
+        if(isNeedProcessData) CoroutineScope(Dispatchers.IO).launch { processData() }
 
         // work_mode -> press to dialog
         binding.llWorkMode.setOnClickListener{workModeDialog()}
@@ -176,6 +181,93 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     }
 
     /**
+     * synchronize data between database and local
+     *
+     * 同步数据
+     */
+    private fun processData() {
+        val mDbHelper = PageDataHelper(applicationContext)
+        mDbHelper.clearDatabase()
+        var filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        when(newDirectory(filePath.toString(), applicationContext.resources.getString(R.string.app_name))){
+            true -> return
+            false -> {
+                filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.app_name))
+                val subdirectories = getSubdirectories(filePath.toString()) // appName subdirectories -> pkgName
+                if (subdirectories.isEmpty()) return
+                subdirectories.forEach { it1 -> // pkgName
+                    val filePath1 = File(filePath.toString() + File.separator + it1)
+                    val subdirectories1 = getSubdirectories(filePath1.toString()) // pkgName subdirectories -> collectTime
+                    if (subdirectories1.isEmpty()) return@forEach // pkgName/collectTime Empty -> return
+                    val pageNum = subdirectories1.size // pkgName/collectTime num -> pageNum
+                    val appName: String? = getAppNameByPkgName(it1)
+                    val pageId = mDbHelper.addPage(it1, appName, pageNum) // add a page
+                    subdirectories1.forEach{ it2 -> // CollectTime
+                        val filePath2 = File(filePath1.toString() + File.separator + it2)
+                        val pageCollectItems = getFileNames(filePath2.toString())
+                        val pageCollectNum = pageCollectItems.size / 3
+                        mDbHelper.addCollect(pageId,it2,pageCollectNum)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * new a directory
+     *
+     * 创建文件夹
+     */
+    private fun newDirectory(path: String, dirName: String):Boolean {
+        val file = File("$path/$dirName")
+        try {
+            if (!file.exists()) {
+                file.mkdirs()
+                return true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
+
+    /**
+     * get sub directories
+     *
+     * 指定文件夹下一级目录的文件夹列表
+     */
+    private fun getSubdirectories(path: String): List<String> {
+        val dir = File(path)
+        return dir.listFiles { file -> file.isDirectory }?.map { file -> file.name } ?: emptyList()
+    }
+
+    /**
+     * get file name
+     *
+     * 指定目录下的文件名称
+     */
+    private fun getFileNames(path: String): List<String> {
+        val dir = File(path)
+        return dir.listFiles { file -> file.isFile }?.map { file -> file.name } ?: emptyList()
+    }
+
+    /**
+     * get app name by its packageName
+     *
+     * 获取应用名称
+     */
+    private fun getAppNameByPkgName(packageName: String): String? {
+        val packageManager: PackageManager = applicationContext.packageManager
+        try {
+            val appInfo = packageManager.getApplicationInfo(packageName, 0)
+            return packageManager.getApplicationLabel(appInfo).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    /**
      * Refresh module status
      *
      * 刷新模块状态
@@ -250,9 +342,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun refreshPermissionStatus(): IntArray {
         val storagePermission = if(isStoragePermissionOn()) 1 else 0
+        val allFilePermission = if(isAllFilePermissionOn()) 1 else 0
         val overlayPermission = if(isOverlayPermissionOn()) 1 else 0
         val accessPermission = if(isAccessibilitySettingsOn(applicationContext)) 1 else 0
-        return intArrayOf(storagePermission,overlayPermission,accessPermission)
+        return intArrayOf(storagePermission,allFilePermission,overlayPermission,accessPermission)
     }
 
     /**
@@ -327,6 +420,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      * 选择工作模式
      */
     private fun selectWorkModeDialog() {
+        isNeedProcessData = true
         val builder = AlertDialog.Builder(this@MainActivity)
         val alertDialog: AlertDialog = builder.setTitle("工作模式")
             .setMessage("在第一次打开应用时 需要选择工作模式")
@@ -428,7 +522,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         }
     }
 
-
     /**
      * check permission
      *
@@ -442,10 +535,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             .setView(dialogView)
             .setCancelable(false)
             .create()
-        if(refreshPermissionStatus().contentEquals(intArrayOf(1, 1, 1))) return
+        if(refreshPermissionStatus().contentEquals(intArrayOf(1, 1, 1, 1))) return
         else dialog.show()
         val storageLinearLayout = dialogView.findViewById<LinearLayout>(R.id.ll_storage_permission)
         val storageImageView = dialogView.findViewById<ImageView>(R.id.iv_storage_permission)
+        val allFileLinearLayout = dialogView.findViewById<LinearLayout>(R.id.ll_all_file_permission)
+        val allFileImageView = dialogView.findViewById<ImageView>(R.id.iv_all_file_permission)
         val overlayLinearLayout = dialogView.findViewById<LinearLayout>(R.id.ll_overlay_permission)
         val overlayImageView = dialogView.findViewById<ImageView>(R.id.iv_overlay_permission)
         val accessLinearLayout = dialogView.findViewById<LinearLayout>(R.id.ll_access_permission)
@@ -456,6 +551,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         storageImageView.setImageResource(
             when{
                 isStoragePermissionOn() -> R.drawable.ic_check_permission
+                else -> R.drawable.ic_check_permission_no
+            }
+        )
+        allFileImageView.setImageResource(
+            when{
+                isAllFilePermissionOn() -> R.drawable.ic_check_permission
                 else -> R.drawable.ic_check_permission_no
             }
         )
@@ -471,7 +572,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 else -> R.drawable.ic_check_permission_no
             }
         )
+        allFileLinearLayout.visibility = (
+                when(Build.VERSION.SDK_INT < Build.VERSION_CODES.R ){
+                    true -> View.GONE
+                    false -> View.VISIBLE
+                })
         storageLinearLayout.setOnClickListener{ checkStoragePermission() }
+        allFileLinearLayout.setOnClickListener { checkAllFilePermission() }
         overlayLinearLayout.setOnClickListener { applyOverlayPermission() }
         accessLinearLayout.setOnClickListener { checkAccessibility() }
         /**
@@ -480,7 +587,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
          * 没授予所有权限时不能进入应用
          */
         confirmButton.setOnClickListener {
-            if (refreshPermissionStatus().contentEquals(intArrayOf(1, 1, 1))) {
+            if (refreshPermissionStatus().contentEquals(intArrayOf(1, 1, 1, 1))) {
                 dialog.cancel()
             } else{
                 Toast.makeText(applicationContext,"请授予所有权限，点击刷新可刷新权限状态",Toast.LENGTH_SHORT).show()
@@ -494,22 +601,39 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     else -> R.drawable.ic_check_permission_no
                 }
             )
-            overlayImageView.setImageResource(
+            allFileImageView.setImageResource(
                 when{
                     permissionStatus[1] == 1 -> R.drawable.ic_check_permission
                     else -> R.drawable.ic_check_permission_no
                 }
             )
-            accessImageView.setImageResource(
+            overlayImageView.setImageResource(
                 when{
                     permissionStatus[2] == 1 -> R.drawable.ic_check_permission
                     else -> R.drawable.ic_check_permission_no
                 }
             )
+            accessImageView.setImageResource(
+                when{
+                    permissionStatus[3] == 1 -> R.drawable.ic_check_permission
+                    else -> R.drawable.ic_check_permission_no
+                }
+            )
         }
         checkDataButton.setOnClickListener {
-            val intent = Intent(this, DataActivity::class.java)
-            startActivity(intent)
+            val permissionStatus = refreshPermissionStatus()
+            if(permissionStatus[0] == 1 && permissionStatus[1] == 1) {
+                CoroutineScope(Dispatchers.IO).launch { processData() }
+                val intent = Intent(this, DataActivity::class.java)
+                startActivity(intent)
+                isNeedProcessData = false
+            } else {
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                    Toast.makeText(applicationContext, "查看结果需要存储权限", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(applicationContext, "查看结果需要存储权限和所有文件权限", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -559,6 +683,32 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun isStoragePermissionOn() : Boolean{
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            return true
+        }
+        return false
+    }
+
+    /**
+     * check all file permission
+     *
+     * 检查所有文件权限
+     */
+    private fun checkAllFilePermission(){
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+        if (!isAllFilePermissionOn()) {
+            Toast.makeText(applicationContext, "请找到“界面信息收集”，并打开所有文件权限。", Toast.LENGTH_SHORT).show()
+            val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+            startActivity(intent)
+        }
+    }
+
+    /**
+     * is all file permission on
+     *
+     * 检查所有文件权限
+     */
+    private fun isAllFilePermissionOn(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R || Environment.isExternalStorageManager()) {
             return true
         }
         return false
