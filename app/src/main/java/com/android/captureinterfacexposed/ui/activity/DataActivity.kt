@@ -293,7 +293,6 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                 }
             }
         }
-
     }
     /**
      * recursive deletion

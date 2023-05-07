@@ -166,6 +166,15 @@ public class PageDataHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // Decrement the page number by 1 for the given page ID (mid)
+    public void decrementPageNumById(long pageId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String selection = COLUMN_PAGES_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(pageId)};
+        db.execSQL("UPDATE " + TABLE_PAGES + " SET " + COLUMN_PAGES_PAGE_NUM + " = " + COLUMN_PAGES_PAGE_NUM + " - 1 WHERE " + selection, selectionArgs);
+        db.close();
+    }
+
     // delete page and collect data for given a pageId
     public void delPageAndCollectData(long mid){
         SQLiteDatabase db = this.getWritableDatabase();

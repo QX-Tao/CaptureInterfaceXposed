@@ -87,10 +87,17 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             }
             itemsToRemove.forEach {
                 pageDataHelper.deleteCollectRow(mid,it)
+                pageDataHelper.decrementPageNumById(mid)
                 if (pkgName != null) {
                     if (it != null) {
                         delPageCollectData(pkgName, it)
                     }
+                }
+            }
+            if(pageDataHelper.getPageNumById(mid) == 0) {
+                pageDataHelper.delPageAndCollectData(mid)
+                if (pkgName != null) {
+                    delPageData(pkgName)
                 }
             }
             processData()
@@ -146,6 +153,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             if(view == null){
                 view = LayoutInflater.from(applicationContext).inflate(R.layout.info_list_item,parent,false)
                 holder = ViewHolder(view)
+                view.tag = holder
             } else{
                 holder = view.tag as ViewHolder
             }
@@ -257,7 +265,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
     }
 
     /**
-     * del pageData by pkgName
+     * del pageCollectData by pkgName and collectData
      *
      * 删除本地记录
      */
@@ -273,7 +281,24 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                 }
             }
         }
-
+    }
+    /**
+     * del pageData by pkgName
+     *
+     * 删除本地记录
+     */
+    private fun delPageData(pkgName: String){
+        var filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.app_name))
+        if (filePath.exists() && filePath.isDirectory) {
+            val files = filePath.listFiles()
+            for (file in files) {
+                if (file.name == pkgName) {
+                    deleteRecursive(file)
+                    break
+                }
+            }
+        }
     }
     /**
      * recursive deletion

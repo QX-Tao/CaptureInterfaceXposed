@@ -32,5 +32,14 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/sync_data">
+
+        <Preference
+            app:key="sync_data"
+            android:title="同步数据文件"
+            android:summary="应用重装后可能导致数据库数据丢失，此时可以同步本地数据文件至数据库" />
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

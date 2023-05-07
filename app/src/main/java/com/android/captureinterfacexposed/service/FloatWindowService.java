@@ -29,15 +29,11 @@ import androidx.annotation.NonNull;
 
 import com.android.captureinterfacexposed.R;
 import com.android.captureinterfacexposed.application.DefaultApplication;
-import com.android.captureinterfacexposed.utils.ConfigUtil;
 import com.android.captureinterfacexposed.utils.factory.ChannelFactory;
 import com.android.captureinterfacexposed.db.PageDataHelper;
 import com.android.captureinterfacexposed.socket.ClientSocket;
 import com.android.captureinterfacexposed.utils.CollectDataUtil;
 import com.android.captureinterfacexposed.utils.CurrentCollectUtil;
-import com.highcapable.yukihookapi.YukiHookAPI;
-
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;

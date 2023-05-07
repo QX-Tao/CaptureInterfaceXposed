@@ -24,6 +24,7 @@
     <string name="more">更多</string>
     <string name="refresh_list">刷新列表</string>
     <string name="system_ui">界面设置</string>
+    <string name="sync_data">同步设置</string>
     <string name="switch_theme">切换主题</string>
     <string name="ui_language">界面语言</string>
     <string name="restart_sys">重启系统</string>
