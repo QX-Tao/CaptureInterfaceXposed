@@ -13,11 +13,13 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityInfoBinding
 import com.android.captureinterfacexposed.db.PageDataHelper
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
+import com.blankj.utilcode.util.ZipUtils
 import java.io.File
 import kotlin.properties.Delegates
 
@@ -32,6 +34,8 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
     private var selectedItems = mutableSetOf<Int>()
     private var isMultiSelectMode = false
     private lateinit var pageCollectItemAdapter: PageCollectItemListAdapter
+    private lateinit var filePath1: File
+    private val zipFileNames = mutableListOf<String>()
 
     override fun onCreate() {
         val appName = intent.getStringExtra("app_name")
@@ -44,7 +48,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
 
         pageDataHelper = PageDataHelper(this)
         loadingDialog = ProgressDialog.show(this@InfoActivity,"数据加载中", "请稍后...", true, false)
-        LoadDataTask().execute()
+        LoadDataTask(1).execute()
 
         binding.includeTitleBarOperate.ivBackButton.setOnClickListener {
             selectedItems.clear()
@@ -108,19 +112,48 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
         }
+        binding.btExportData.setOnClickListener {
+            zipFileNames.clear()
+            filePath1 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            filePath1 = File(filePath1.toString() + File.separator + applicationContext.resources.getString(R.string.app_name) + File.separator + pkgName)
+            if (isMultiSelectMode){
+                selectedItems.forEach {
+                    val zipTmpFileName = pageCollectItemList!![it].pageCollectData ?: ""
+                    zipFileNames.add(filePath1.toString() + File.separator + zipTmpFileName)
+                }
+            } else {
+                for (i in pageCollectItemList!!.indices){
+                    val zipTmpFileName = pageCollectItemList!![i].pageCollectData ?: ""
+                    zipFileNames.add(filePath1.toString() + File.separator + zipTmpFileName)
+                }
+            }
+            loadingDialog = ProgressDialog.show(this@InfoActivity,"处理中", "请稍后...", true, false)
+            LoadDataTask(2).execute()
+        }
     }
 
-    private inner class LoadDataTask : AsyncTask<Void?, Void?, Void?>() {
+    private inner class LoadDataTask(private val taskType: Int) : AsyncTask<Void?, Void?, Void?>() {
         @Deprecated("Deprecated in Java")
         override fun doInBackground(vararg params: Void?): Void? {
-            processData()
+            when(taskType){
+                1 -> processData()
+                2 -> ZipUtils.zipFiles(zipFileNames, "$filePath1.zip")
+            }
             return null
         }
         @Deprecated("Deprecated in Java")
         override fun onPostExecute(aVoid: Void?) {
-            pageCollectItemAdapter = PageCollectItemListAdapter(pageCollectItemList!!)
-            binding.collectItemListView.adapter = pageCollectItemAdapter
-            loadingDialog.dismiss() // 关闭进度条
+            when(taskType){
+                1 -> {
+                    pageCollectItemAdapter = PageCollectItemListAdapter(pageCollectItemList!!)
+                    binding.collectItemListView.adapter = pageCollectItemAdapter
+                    loadingDialog.dismiss() // 关闭进度条
+                }
+                2 -> {
+                    loadingDialog.dismiss() // 关闭进度条
+                    Toast.makeText(applicationContext,"数据已导出",Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -240,7 +273,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                 pageTmpCollectList = null
                 binding.collectItemListView.adapter = null
                 loadingDialog = ProgressDialog.show(this@InfoActivity,"数据加载中", "请稍后...", true, false)
-                LoadDataTask().execute()
+                LoadDataTask(1).execute()
             }
             true
         }

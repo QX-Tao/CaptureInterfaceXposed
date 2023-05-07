@@ -28,7 +28,6 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/rl_edit_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -37,7 +36,7 @@
         android:layout_marginEnd="24dp">
 
         <Button
-            android:id="@+id/bt_check_all"
+            android:id="@+id/bt_export_data"
             android:textColor="@color/white"
             android:backgroundTint="@color/theme_color_ftb"
             android:layout_width="wrap_content"
