@@ -341,4 +341,16 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
         pageDataHelper.close()
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if(isMultiSelectMode){
+            selectedItems.clear()
+            isMultiSelectMode = false
+            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+            pageCollectItemAdapter.notifyDataSetChanged()
+        } else {
+            super.onBackPressed()
+        }
+    }
 }
