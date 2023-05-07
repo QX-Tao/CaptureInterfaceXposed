@@ -152,12 +152,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             if(isServiceStart){
                 when(getWorkModeStatus()){
                     -1 ->{
+                        CurrentCollectUtil.setLeftButtonClickable(true)
                         val intent = Intent(Intent.ACTION_MAIN)
                         intent.addCategory(Intent.CATEGORY_HOME)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(intent)
                     }
                     0 -> {
+                        CurrentCollectUtil.setLeftButtonClickable(false)
                         Toast.makeText(applicationContext,"模块未激活，请重试。",Toast.LENGTH_SHORT).show()
                     }
                     1 -> {
@@ -169,6 +171,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                             }
                             CurrentCollectUtil.setCollectPackageName(hookPackageName)
                             CurrentCollectUtil.setRightButtonClickable(false)
+                            CurrentCollectUtil.setLeftButtonClickable(true)
                             DefaultApplication.enableHookByLSP(packageName, hookPackageName)
                         }
                     }

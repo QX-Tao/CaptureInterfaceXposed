@@ -6,6 +6,7 @@ public class CurrentCollectUtil {
     private static String collectTime = null;
     private static int interfaceNum = 0;
     private static boolean rightButtonClickable = false;
+    private static boolean leftButtonClickable = false;
 
     public static String getCollectFilePath() {
         return collectFilePath;
@@ -45,5 +46,13 @@ public class CurrentCollectUtil {
 
     public static void setRightButtonClickable(boolean rightButtonClickable) {
         CurrentCollectUtil.rightButtonClickable = rightButtonClickable;
+    }
+
+    public static boolean isLeftButtonClickable() {
+        return leftButtonClickable;
+    }
+
+    public static void setLeftButtonClickable(boolean leftButtonClickable) {
+        CurrentCollectUtil.leftButtonClickable = leftButtonClickable;
     }
 }

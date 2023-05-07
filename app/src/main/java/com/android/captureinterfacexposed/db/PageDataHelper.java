@@ -166,6 +166,23 @@ public class PageDataHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // delete page and collect data for given a pageId
+    public void delPageAndCollectData(long mid){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // delete from collect table
+            db.delete(TABLE_COLLECT, COLUMN_COLLECT_ID + "=?", new String[]{String.valueOf(mid)});
+            // delete from pages table
+            db.delete(TABLE_PAGES, COLUMN_PAGES_ID + "=?", new String[]{String.valueOf(mid)});
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e("PageDataHelper", "Error deleting page and collect data with mid: " + mid, e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     // Add a new collect to the collect table
     public long addCollect(long pageId, String pageCollectData, int pageCollectNum) {
         SQLiteDatabase db = this.getWritableDatabase();

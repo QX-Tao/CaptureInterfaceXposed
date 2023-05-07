@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="56dp"
-    android:id="@+id/include_title_bar_second"
+    android:id="@+id/include_title_bar_operate"
     android:fitsSystemWindows="true"
     android:paddingStart="8dp"
     android:paddingEnd="8dp">
@@ -32,13 +32,42 @@
 
     <ImageButton
         tools:ignore="SpeakableTextPresentCheck|TouchTargetSizeCheck"
-        android:id="@+id/iv_more_button"
-        android:tooltipText="更多"
+        android:id="@+id/iv_check_delete"
+        android:tooltipText="删除"
+        android:padding="6dp"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:scaleType="centerCrop"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
         android:background="@drawable/bg_ripple_r18"
-        android:src="@drawable/ic_more_black"/>
+        android:src="@drawable/ic_check_delete_black"/>
+
+
+    <ImageButton
+        tools:ignore="SpeakableTextPresentCheck|TouchTargetSizeCheck"
+        android:id="@+id/iv_check_invert"
+        android:tooltipText="反选"
+        android:padding="6dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:scaleType="centerCrop"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@id/iv_check_delete"
+        android:background="@drawable/bg_ripple_r18"
+        android:src="@drawable/ic_check_invert_black"/>
+
+    <ImageButton
+        tools:ignore="SpeakableTextPresentCheck|TouchTargetSizeCheck"
+        android:id="@+id/iv_check_all"
+        android:tooltipText="全选"
+        android:padding="6dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:scaleType="centerCrop"
+        android:layout_toStartOf="@id/iv_check_invert"
+        android:layout_centerVertical="true"
+        android:background="@drawable/bg_ripple_r18"
+        android:src="@drawable/ic_check_all_black" />
 
 </RelativeLayout>

@@ -15,6 +15,11 @@
             android:id="@+id/include_title_bar_second"
             layout="@layout/include_title_bar_second"/>
 
+        <include
+            android:visibility="gone"
+            android:id="@+id/include_title_bar_operate"
+            layout="@layout/include_title_bar_operate"/>
+
         <ListView
             android:id="@+id/page_item_list_view"
             android:layout_width="match_parent"
@@ -23,6 +28,7 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/rl_edit_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -31,13 +37,12 @@
         android:layout_marginEnd="24dp">
 
         <Button
-            android:id="@+id/bt_check_data"
+            android:id="@+id/bt_check_all"
             android:textColor="@color/white"
             android:backgroundTint="@color/theme_color_ftb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="编辑" />
-
+            android:text="导出数据" />
 
     </RelativeLayout>
 

@@ -25,6 +25,7 @@
     <color name="theme_color_gap">#673ab7</color>
     <color name="theme_color_lgn">#4caf50</color>
     <color name="theme_color_jis">#ff5252</color>
+    <color name="theme_color_gts">#e4e4e4</color>
     <color name="theme_color_yld">#ffc107</color>
 
     <!-- Text Colors -->
@@ -42,5 +43,10 @@
 
     <color name="hostShareSheetActionIconForegroundColorLight">#03081A</color>
     <color name="hostShareSheetActionIconForegroundColorNight">#8D8D93</color>
+
+    <color name="lv_item_state_activated">#994455</color>
+    <color name="lv_item_state_activated_pressed">#d72e50</color>
+    <color name="lv_item_state_pressed">#88eec99d</color>
+    <color name="lv_item_state_normal">#e29944</color>
 
 </resources>

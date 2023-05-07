@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
+    android:id="@+id/rl_data_list"
     android:padding="8dp">
 
     <ImageView
@@ -50,7 +51,6 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true">
 
-
         <TextView
             android:id="@+id/page_num_text_view"
             android:layout_width="wrap_content"
@@ -66,7 +66,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_right_gray"
             android:layout_toEndOf="@id/page_num_text_view"/>
-
 
     </RelativeLayout>
 

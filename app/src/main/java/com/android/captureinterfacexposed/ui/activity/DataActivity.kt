@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -14,56 +15,104 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityDataBinding
 import com.android.captureinterfacexposed.db.PageDataHelper
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
+import java.io.File
 
 class DataActivity : BaseActivity<ActivityDataBinding>() {
-
     companion object{
         private lateinit var pageDataHelper: PageDataHelper
         private lateinit var loadingDialog: ProgressDialog
         private var pageItemList: List<PageItem>? = null
         private var pageTmpList:  List<PageDataHelper.Page>? = null
     }
+    private var selectedItems = mutableSetOf<Int>()
+    private var isMultiSelectMode = false
+    private lateinit var pageItemAdapter: PageItemListAdapter
 
     override fun onCreate() {
-
         binding.includeTitleBarSecond.tvTitle.text = getString(R.string.cellect_result)
         binding.includeTitleBarSecond.ivBackButton.setOnClickListener { onBackPressed() }
         binding.includeTitleBarSecond.ivMoreButton.setOnClickListener { showPopupMenu(binding.includeTitleBarSecond.ivMoreButton) }
-
         pageDataHelper = PageDataHelper(this)
-
         loadingDialog = ProgressDialog.show(this@DataActivity,"数据加载中", "请稍后...", true, false)
         LoadDataTask().execute()
-
-        binding.pageItemListView.setOnItemClickListener { _, _, position, _ ->
-            val appName = pageItemList?.get(position)?.appName
-            val pkgName = pageItemList?.get(position)?.packageName
-            val mid = pageItemList?.get(position)?.mid
-            val intent = Intent(this,InfoActivity::class.java)
-            intent.putExtra("app_name", appName)
-            intent.putExtra("package_name", pkgName)
-            intent.putExtra("mid",mid)
-            startActivity(intent)
+        binding.includeTitleBarOperate.ivBackButton.setOnClickListener {
+            selectedItems.clear()
+            isMultiSelectMode = false
+            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+            pageItemAdapter.notifyDataSetChanged()
         }
-
+        binding.includeTitleBarOperate.ivCheckAll.setOnClickListener {
+            if(selectedItems.size < pageItemList!!.size){
+                selectedItems.clear()
+                for (i in pageItemList!!.indices) {
+                    selectedItems.add(i)
+                }
+                pageItemAdapter.notifyDataSetChanged()
+            }
+            binding.includeTitleBarOperate.tvTitle.text = "已选" + selectedItems.size +"项"
+        }
+        binding.includeTitleBarOperate.ivCheckInvert.setOnClickListener {
+            val newSelectedItems = mutableSetOf<Int>()
+            for (i in pageItemList!!.indices) {
+                if (!selectedItems.contains(i)) {
+                    newSelectedItems.add(i)
+                }
+            }
+            selectedItems = newSelectedItems
+            binding.includeTitleBarOperate.tvTitle.text = "已选" + selectedItems.size +"项"
+            if(selectedItems.size == 0){
+                selectedItems.clear()
+                isMultiSelectMode = false
+                binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+                binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+            }
+            pageItemAdapter.notifyDataSetChanged()
+        }
+        binding.includeTitleBarOperate.ivCheckDelete.setOnClickListener {
+            val adapter = binding.pageItemListView.adapter as PageItemListAdapter
+            val itemsToRemove = mutableListOf<Long>()
+            val itemsToRemovePkgName = mutableListOf<String>()
+            selectedItems.forEach {
+                itemsToRemove.add(pageItemList!![it].mid)
+                itemsToRemovePkgName.add(pageItemList!![it].packageName)
+            }
+            itemsToRemove.forEach { pageDataHelper.delPageAndCollectData(it) }
+            itemsToRemovePkgName.forEach{ delPageData(it) }
+            processData()
+            pageItemAdapter = PageItemListAdapter(pageItemList!!)
+            binding.pageItemListView.adapter = pageItemAdapter
+            selectedItems.clear()
+            isMultiSelectMode = false
+            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+        }
     }
 
     private inner class LoadDataTask : AsyncTask<Void?, Void?, Void?>() {
+        @Deprecated("Deprecated in Java")
         override fun doInBackground(vararg params: Void?): Void? {
             processData()
             return null
         }
+        @Deprecated("Deprecated in Java")
         override fun onPostExecute(aVoid: Void?) {
-            val pageItemAdapter = PageItemListAdapter(applicationContext, pageItemList!!)
+            pageItemAdapter = PageItemListAdapter(pageItemList!!)
             binding.pageItemListView.adapter = pageItemAdapter
             loadingDialog.dismiss() // 关闭进度条
         }
     }
 
+    /**
+     * process data
+     *
+     * 拉取数据
+     */
     fun processData(){
         pageTmpList = pageDataHelper.allPages
         pageItemList = getPageItemList(pageTmpList!!)
@@ -74,25 +123,23 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
      *
      * 列表适配器
      */
-    private class PageItemListAdapter(private val context: Context, private val pageItemList: List<PageItem>): BaseAdapter() {
+    private inner class PageItemListAdapter(private val pageItemList: List<PageItem>): BaseAdapter() {
         override fun getCount(): Int {
             return pageItemList.size
         }
-
         override fun getItem(position: Int): Any {
             return pageItemList[position].toString()
         }
-
         override fun getItemId(position: Int): Long {
             return position.toLong()
         }
-
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View? {
             var view = convertView
             val holder: ViewHolder
             if(view == null){
-                view = LayoutInflater.from(context).inflate(R.layout.data_list_item,parent,false)
+                view = LayoutInflater.from(applicationContext).inflate(R.layout.data_list_item,parent,false)
                 holder = ViewHolder(view)
+                view.tag = holder
             } else{
                 holder = view.tag as ViewHolder
             }
@@ -105,16 +152,71 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             holder.appName.text = index.appName
             holder.packageName.text = index.packageName
             holder.pageNum.text = index.pageNum + "份"
+            view?.setBackgroundResource(R.drawable.bg_ripple)
+            view?.setOnLongClickListener {
+                if (!isMultiSelectMode) {
+                    enterMultiSelectMode(position)
+                    return@setOnLongClickListener true
+                }
+                return@setOnLongClickListener false
+            }
+            view?.setOnClickListener {
+                if (isMultiSelectMode){
+                    enterMultiSelectMode(position)
+                } else {
+                    val appName = Companion.pageItemList?.get(position)?.appName
+                    val pkgName = Companion.pageItemList?.get(position)?.packageName
+                    val mid = Companion.pageItemList?.get(position)?.mid
+                    val intent = Intent(applicationContext,InfoActivity::class.java)
+                    intent.putExtra("app_name", appName)
+                    intent.putExtra("package_name", pkgName)
+                    intent.putExtra("mid",mid)
+                    startActivity(intent)
+                }
+            }
+            // 如果处于多选状态，则根据选中状态设置背景颜色
+            if (isMultiSelectMode) {
+                if (selectedItems.contains(position)) {
+                    view?.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.theme_color_gts))
+                } else {
+                    view?.setBackgroundResource(0)
+                }
+            }
             return view
         }
 
-        private class ViewHolder(view: View) {
+        private inner class ViewHolder(view: View) {
             val appIcon: ImageView = view.findViewById(R.id.app_icon_image_view)
             val appName: TextView = view.findViewById(R.id.app_name_text_view)
             val packageName: TextView = view.findViewById(R.id.package_name_text_view)
             val pageNum: TextView = view.findViewById(R.id.page_num_text_view)
         }
+    }
 
+    /**
+     * enter multiselect mode
+     *
+     * 多选模式
+     */
+    private fun enterMultiSelectMode(position: Int) {
+        isMultiSelectMode = true
+        binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.GONE
+        binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.VISIBLE
+        // 切换选中状态
+        if (selectedItems.contains(position)) {
+            selectedItems.remove(position)
+        } else {
+            selectedItems.add(position)
+        }
+        binding.includeTitleBarOperate.tvTitle.text = "已选" + selectedItems.size +"项"
+        if(selectedItems.size == 0){ // 未选中某一项 则退出MultiSelectMode
+            isMultiSelectMode = false
+            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+        }
+        // 刷新列表项
+        val adapter = binding.pageItemListView.adapter as PageItemListAdapter
+        adapter.notifyDataSetChanged()
     }
 
     /**
@@ -157,22 +259,6 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
     }
 
     /**
-     * get app name by its packageName
-     *
-     * 获取应用图标
-     */
-    private fun getAppNameByPkgName(packageName:String): String? {
-        val packageManager = applicationContext.packageManager
-        try {
-            val appInfo = packageManager.getApplicationInfo(packageName, 0)
-            return packageManager.getApplicationLabel(appInfo).toString()
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
-    /**
      * get pageItemList
      *
      * 获取pageItemList
@@ -189,6 +275,42 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             pageItems.add(pageItem)
         }
         return pageItems
+    }
+
+    /**
+     * del pageData by pkgName
+     *
+     * 删除本地记录
+     */
+    private fun delPageData(pkgName: String){
+        var filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.app_name))
+        if (filePath.exists() && filePath.isDirectory) {
+            val files = filePath.listFiles()
+            for (file in files) {
+                if (file.name == pkgName) {
+                    deleteRecursive(file)
+                    break
+                }
+            }
+        }
+
+    }
+    /**
+     * recursive deletion
+     *
+     * 递归删除
+     */
+    private fun deleteRecursive(file: File) {
+        if (file.isDirectory) {
+            val files = file.listFiles()
+            if (files != null) {
+                for (f in files) {
+                    deleteRecursive(f)
+                }
+            }
+        }
+        file.delete()
     }
 
     /**
@@ -213,10 +335,8 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
         }
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         pageDataHelper.close()
     }
-
 }

@@ -29,11 +29,13 @@ import androidx.annotation.NonNull;
 
 import com.android.captureinterfacexposed.R;
 import com.android.captureinterfacexposed.application.DefaultApplication;
+import com.android.captureinterfacexposed.utils.ConfigUtil;
 import com.android.captureinterfacexposed.utils.factory.ChannelFactory;
 import com.android.captureinterfacexposed.db.PageDataHelper;
 import com.android.captureinterfacexposed.socket.ClientSocket;
 import com.android.captureinterfacexposed.utils.CollectDataUtil;
 import com.android.captureinterfacexposed.utils.CurrentCollectUtil;
+import com.highcapable.yukihookapi.YukiHookAPI;
 
 import org.w3c.dom.Text;
 
@@ -50,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 
 public class FloatWindowService {
     private static final int SCREENSHOT_REQUEST_CODE = 100; // 截图请求码
+    private static final String LSP_HOOK = "lsp_hook";
     private static final String APPLICATION_PACKAGE_NAME = "com.android.captureinterfacexposed";
     private static final String SCREEN_SHOT_TAG = "screenShot";
     private static final String DUMP_VIEW_TREE_TAG = "dumpViewTree";
@@ -146,7 +149,7 @@ public class FloatWindowService {
         // 2. 设置view的位置和大小
         floatListViewLayoutParams = new WindowManager.LayoutParams(
                 (int) ( 0.85 * screenWidth),
-                (int) ( 0.4 * screenHeight),
+                WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
@@ -200,6 +203,9 @@ public class FloatWindowService {
                     CurrentCollectUtil.setInterfaceNum(tgNum);
                     isClick = 1;
                     break;
+            }
+            if(!CurrentCollectUtil.isLeftButtonClickable()){
+                return;
             }
             if(CurrentCollectUtil.isRightButtonClickable()){
                 CollectDataUtil collectDataUtil = CollectDataUtil.getInstance(context.getApplicationContext());
