@@ -131,6 +131,11 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                 2 -> {
                     loadingDialog.dismiss() // 关闭进度条
                     Toast.makeText(applicationContext,"数据已导出",Toast.LENGTH_SHORT).show()
+                    selectedItems.clear()
+                    isMultiSelectMode = false
+                    binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+                    binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+                    pageItemAdapter.notifyDataSetChanged()
                 }
             }
         }

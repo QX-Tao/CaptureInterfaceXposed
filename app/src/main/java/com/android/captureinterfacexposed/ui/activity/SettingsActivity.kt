@@ -76,6 +76,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
             @Deprecated("Deprecated in Java")
             override fun onPostExecute(aVoid: Void?) {
                 loadingDialog.dismiss() // 关闭进度条
+                Toast.makeText(context,"数据已加载",Toast.LENGTH_SHORT).show()
             }
 
             /**
