@@ -482,7 +482,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun helpDialog() {
         val builder = AlertDialog.Builder(this@MainActivity)
         builder.setTitle("提示")
-        builder.setMessage("如LSP注入模式无法正常使用，可打开LSPosed查看状态，需确保模块作用域包含”系统框架(android)“和待测APP，点击”确定“以打开LSPosed")
+        builder.setMessage("如LSP注入模式无法正常使用，可打开LSPosed查看状态，需确保模块作用域包含“系统框架(android)”和待测APP，点击“确定”以打开LSPosed")
         builder.setPositiveButton("确定") {_, _ -> DefaultApplication.startApp("org.lsposed.manager")}
         builder.create().show()
     }

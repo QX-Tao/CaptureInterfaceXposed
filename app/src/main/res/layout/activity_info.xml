@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/colorThemeBackground"
     android:layout_width="match_parent"
@@ -7,13 +7,44 @@
     android:orientation="vertical"
     tools:context=".ui.activity.InfoActivity">
 
-    <include
-        android:id="@+id/include_title_bar_second"
-        layout="@layout/include_title_bar_second"/>
-
-    <ListView
-        android:id="@+id/collect_item_list_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
 
-</LinearLayout>
+        <include
+            android:id="@+id/include_title_bar_second"
+            layout="@layout/include_title_bar_second"/>
+
+        <include
+            android:visibility="gone"
+            android:id="@+id/include_title_bar_operate"
+            layout="@layout/include_title_bar_operate"/>
+
+        <ListView
+            android:id="@+id/collect_item_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_edit_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="24dp">
+
+        <Button
+            android:id="@+id/bt_check_all"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/theme_color_ftb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="导出数据" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

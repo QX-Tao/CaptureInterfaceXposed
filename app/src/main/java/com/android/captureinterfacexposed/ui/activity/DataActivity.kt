@@ -75,7 +75,6 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             pageItemAdapter.notifyDataSetChanged()
         }
         binding.includeTitleBarOperate.ivCheckDelete.setOnClickListener {
-            val adapter = binding.pageItemListView.adapter as PageItemListAdapter
             val itemsToRemove = mutableListOf<Long>()
             val itemsToRemovePkgName = mutableListOf<String>()
             selectedItems.forEach {

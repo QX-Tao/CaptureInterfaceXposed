@@ -266,6 +266,13 @@ public class PageDataHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // delete collect data by given a mid and pageCollectData
+    public void deleteCollectRow(long mid, String pageCollectData) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_COLLECT, COLUMN_COLLECT_ID + " = ? AND " + COLUMN_COLLECT_PAGE_COLLECT_DATA + " = ?", new String[] { String.valueOf(mid), pageCollectData });
+        db.close();
+    }
+
 
     public static class Page{
         public final long mid;
