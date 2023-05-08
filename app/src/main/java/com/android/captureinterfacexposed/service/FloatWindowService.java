@@ -24,16 +24,19 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.android.captureinterfacexposed.R;
 import com.android.captureinterfacexposed.application.DefaultApplication;
+import com.android.captureinterfacexposed.utils.ConfigUtil;
 import com.android.captureinterfacexposed.utils.factory.ChannelFactory;
 import com.android.captureinterfacexposed.db.PageDataHelper;
 import com.android.captureinterfacexposed.socket.ClientSocket;
 import com.android.captureinterfacexposed.utils.CollectDataUtil;
 import com.android.captureinterfacexposed.utils.CurrentCollectUtil;
+import com.highcapable.yukihookapi.YukiHookAPI;
 
 import java.io.File;
 import java.io.IOException;
@@ -342,13 +345,15 @@ public class FloatWindowService {
 
     AdapterView.OnItemClickListener SelectLocationListViewItemClickListener = (parent, view, position, id) -> {
         if(isDisplayPageItemList){
-            String packageName = pageItemList.get(position).packageName;
-            DefaultApplication.killApp(CurrentCollectUtil.getCollectPackageName());
-            DefaultApplication.enableHookByLSP(APPLICATION_PACKAGE_NAME, packageName);
-            CurrentCollectUtil.setCollectPackageName(packageName);
-            CurrentCollectUtil.setRightButtonClickable(false);
-            isDisplayPageItemList = false;
-            stopFloatListView();
+            if(getWorkModeStatus() == 1){
+                String packageName = pageItemList.get(position).packageName;
+                DefaultApplication.killApp(CurrentCollectUtil.getCollectPackageName());
+                DefaultApplication.enableHookByLSP(APPLICATION_PACKAGE_NAME, packageName);
+                CurrentCollectUtil.setCollectPackageName(packageName);
+                CurrentCollectUtil.setRightButtonClickable(false);
+                isDisplayPageItemList = false;
+                stopFloatListView();
+            }
         } else {
             String pageCollectData = pageCollectItemList.get(position).pageCollectData;
             String pageCollectNum = pageCollectItemList.get(position).pageCollectNum;
@@ -646,6 +651,22 @@ public class FloatWindowService {
             bt_refresh.setText("刷新列表");
         }
         windowManager.updateViewLayout(floatListView, floatListViewLayoutParams);
+    }
+
+    /**
+     * check work mode: normal -> -1, lsp_off -> 0, lsp_on -> 1
+     *
+     * 返回运行模式：普通、LSP（未激活）、LSP（已激活）
+     */
+    private int getWorkModeStatus(){
+        String isLspHook = ConfigUtil.getInstance(context).getString(LSP_HOOK,null);
+        if(Objects.equals(isLspHook, "true"))
+            if(YukiHookAPI.Status.INSTANCE.isXposedModuleActive())
+                return 1;
+            else
+                return 0;
+        else
+            return -1;
     }
 
     public void processData(){
