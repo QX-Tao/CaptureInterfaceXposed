@@ -165,6 +165,9 @@ public class FloatWindowService {
         bt_switch_app.setOnClickListener(floatListViewClickListener);
         bt_close.setOnClickListener(floatListViewClickListener);
 
+        if(getWorkModeStatus() != 1) { bt_switch_app.setVisibility(View.INVISIBLE); }
+        else { bt_switch_app.setVisibility(View.VISIBLE); }
+
         // 5. 将 View 添加到 window 中
         windowManager.addView(floatListView, floatListViewLayoutParams);
         isStartFloatListView = true;
@@ -345,15 +348,13 @@ public class FloatWindowService {
 
     AdapterView.OnItemClickListener SelectLocationListViewItemClickListener = (parent, view, position, id) -> {
         if(isDisplayPageItemList){
-            if(getWorkModeStatus() == 1){
-                String packageName = pageItemList.get(position).packageName;
-                DefaultApplication.killApp(CurrentCollectUtil.getCollectPackageName());
-                DefaultApplication.enableHookByLSP(APPLICATION_PACKAGE_NAME, packageName);
-                CurrentCollectUtil.setCollectPackageName(packageName);
-                CurrentCollectUtil.setRightButtonClickable(false);
-                isDisplayPageItemList = false;
-                stopFloatListView();
-            }
+            String packageName = pageItemList.get(position).packageName;
+            DefaultApplication.killApp(CurrentCollectUtil.getCollectPackageName());
+            DefaultApplication.enableHookByLSP(APPLICATION_PACKAGE_NAME, packageName);
+            CurrentCollectUtil.setCollectPackageName(packageName);
+            CurrentCollectUtil.setRightButtonClickable(false);
+            isDisplayPageItemList = false;
+            stopFloatListView();
         } else {
             String pageCollectData = pageCollectItemList.get(position).pageCollectData;
             String pageCollectNum = pageCollectItemList.get(position).pageCollectNum;
@@ -643,12 +644,16 @@ public class FloatWindowService {
     private void updateFloatListView(){
         TextView bt_switch_app = floatListView.findViewById(R.id.bt_switch_app);
         TextView bt_refresh = floatListView.findViewById(R.id.bt_refresh);
-        if (isDisplayPageItemList){
+        if(getWorkModeStatus() != 1) {
             bt_switch_app.setVisibility(View.INVISIBLE);
-            bt_refresh.setText("返回");
         } else {
-            bt_switch_app.setVisibility(View.VISIBLE);
-            bt_refresh.setText("刷新列表");
+            if (isDisplayPageItemList){
+                bt_switch_app.setVisibility(View.INVISIBLE);
+                bt_refresh.setText("返回");
+            } else {
+                bt_switch_app.setVisibility(View.VISIBLE);
+                bt_refresh.setText("刷新列表");
+            }
         }
         windowManager.updateViewLayout(floatListView, floatListViewLayoutParams);
     }
