@@ -196,15 +196,18 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                 holder = view.tag as ViewHolder
             }
             val index = pageCollectItemList[position]
-            holder.pageCollectIcon.setImageResource(
+            holder.pageCollectIcon.setImageDrawable(
                 when(index.pageCollectNum){
-                    "1" -> R.drawable.ic_collect_page_less
-                    "2" -> R.drawable.ic_collect_page_default
-                    else -> R.drawable.ic_collect_page_more
+                    "1" -> resources.getDrawable(R.drawable.ic_collect_page_less)
+                    "2" -> resources.getDrawable(R.drawable.ic_collect_page_default)
+                    else -> resources.getDrawable(R.drawable.ic_collect_page_more)
                 }
             )
             holder.pageCollectData.text = index.pageCollectData
             holder.pageCollectNum.text = index.pageCollectNum + "份"
+            holder.pageCollectDesc.setTextColor(resources.getColor(R.color.secondTextColor))
+            holder.pageCollectData.setTextColor(resources.getColor(R.color.firstTextColor))
+            holder.pageCollectNum.setTextColor(resources.getColor(R.color.thirdTextColor))
             view?.setBackgroundResource(R.drawable.bg_ripple)
             view?.setOnLongClickListener {
                 if (!isMultiSelectMode) {
@@ -221,7 +224,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             // 如果处于多选状态，则根据选中状态设置背景颜色
             if (isMultiSelectMode) {
                 if (selectedItems.contains(position)) {
-                    view?.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.theme_color_gts))
+                    view?.setBackgroundColor(resources.getColor(R.color.coverColor))
                 } else {
                     view?.setBackgroundResource(0)
                 }
@@ -231,6 +234,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
 
         private inner class ViewHolder(view: View) {
             val pageCollectIcon: ImageView = view.findViewById(R.id.collect_page_image_view)
+            val pageCollectDesc: TextView = view.findViewById(R.id.collect_page_desc_text_view)
             val pageCollectData: TextView = view.findViewById(R.id.collect_page_data_text_view)
             val pageCollectNum: TextView = view.findViewById(R.id.collect_page_num_text_view)
         }
@@ -312,7 +316,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
         filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.app_name) + File.separator + pkgName)
         if (filePath.exists() && filePath.isDirectory) {
             val files = filePath.listFiles()
-            for (file in files) {
+            for (file in files!!) {
                 if (file.name == collectData) {
                     deleteRecursive(file)
                     break
@@ -330,7 +334,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
         filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.app_name))
         if (filePath.exists() && filePath.isDirectory) {
             val files = filePath.listFiles()
-            for (file in files) {
+            for (file in files!!) {
                 if (file.name == pkgName) {
                     deleteRecursive(file)
                     break

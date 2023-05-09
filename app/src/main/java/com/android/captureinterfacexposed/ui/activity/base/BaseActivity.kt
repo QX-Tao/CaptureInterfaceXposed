@@ -2,9 +2,11 @@
 
 package com.android.captureinterfacexposed.ui.activity.base
 
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
 import androidx.viewbinding.ViewBinding
@@ -12,9 +14,15 @@ import com.highcapable.yukihookapi.hook.factory.current
 import com.highcapable.yukihookapi.hook.factory.method
 import com.highcapable.yukihookapi.hook.type.android.LayoutInflaterClass
 import com.android.captureinterfacexposed.R
+import com.android.captureinterfacexposed.utils.ShareUtil
 import com.android.captureinterfacexposed.utils.factory.isNotSystemInDarkMode
+import com.blankj.utilcode.util.LanguageUtils
+import java.util.*
 
 abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
+
+    private val THEME_MODE = "theme_key";
+    private val LANGUAGE_MODE = "language_key";
 
     /**
      * Get the binding layout object
@@ -61,4 +69,5 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
      * 回调 [onCreate] 方法
      */
     abstract fun onCreate()
+
 }

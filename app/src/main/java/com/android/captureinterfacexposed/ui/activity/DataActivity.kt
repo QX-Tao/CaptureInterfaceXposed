@@ -1,7 +1,6 @@
 package com.android.captureinterfacexposed.ui.activity
 
 import android.app.ProgressDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
@@ -185,6 +184,9 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             holder.appName.text = index.appName
             holder.packageName.text = index.packageName
             holder.pageNum.text = index.pageNum + "份"
+            holder.appName.setTextColor(resources.getColor(R.color.firstTextColor))
+            holder.packageName.setTextColor(resources.getColor(R.color.secondTextColor))
+            holder.pageNum.setTextColor(resources.getColor(R.color.thirdTextColor))
             view?.setBackgroundResource(R.drawable.bg_ripple)
             view?.setOnLongClickListener {
                 if (!isMultiSelectMode) {
@@ -210,7 +212,7 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             // 如果处于多选状态，则根据选中状态设置背景颜色
             if (isMultiSelectMode) {
                 if (selectedItems.contains(position)) {
-                    view?.setBackgroundColor(ContextCompat.getColor(applicationContext, R.color.theme_color_gts))
+                    view?.setBackgroundColor(resources.getColor(R.color.coverColor))
                 } else {
                     view?.setBackgroundResource(0)
                 }

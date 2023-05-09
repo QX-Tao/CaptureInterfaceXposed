@@ -1,24 +1,60 @@
 package com.android.captureinterfacexposed.application
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import com.android.captureinterfacexposed.utils.ShareUtil
+import com.blankj.utilcode.util.LanguageUtils
 import com.blankj.utilcode.util.ShellUtils
 import com.highcapable.yukihookapi.hook.xposed.application.ModuleApplication
+import java.util.*
 
 class DefaultApplication : ModuleApplication() {
 
+    private val THEME_MODE = "theme_key";
+    private val LANGUAGE_MODE = "language_key";
+
     override fun onCreate() {
         super.onCreate()
+
         /**
-         * 跟随系统夜间模式
-         * Follow system night mode
+         * theme mode setting
+         * 主题模式
          */
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-        // Your code here.
+        when (ShareUtil.getString(applicationContext,THEME_MODE,"follow_system")) {
+            "follow_system" -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+            "light" -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+            "dark" -> {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+        }
+
+        /**
+         * language mode setting
+         * 语言模式
+         */
+        when (ShareUtil.getString(applicationContext,LANGUAGE_MODE,"follow_system")) {
+            "follow_system" -> {
+                LanguageUtils.applySystemLanguage(false)
+            }
+            "zh_CN" -> {
+                LanguageUtils.applyLanguage(Locale.SIMPLIFIED_CHINESE,false)
+            }
+            "zh_TW" -> {
+                LanguageUtils.applyLanguage(Locale.TRADITIONAL_CHINESE,false)
+            }
+            "english" -> {
+                LanguageUtils.applyLanguage(Locale.US,false)
+            }
+        }
     }
+
+
 
     companion object{
         @JvmStatic

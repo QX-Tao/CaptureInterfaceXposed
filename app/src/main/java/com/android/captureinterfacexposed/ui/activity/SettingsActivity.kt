@@ -3,11 +3,11 @@ package com.android.captureinterfacexposed.ui.activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.AsyncTask
-import android.os.Bundle
-import android.os.Environment
+import android.os.*
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -17,13 +17,16 @@ import com.android.captureinterfacexposed.databinding.ActivitySettingsBinding
 import com.android.captureinterfacexposed.db.PageDataHelper
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
 import com.android.captureinterfacexposed.utils.ShareUtil
+import com.blankj.utilcode.util.LanguageUtils
 import java.io.File
+import java.util.*
 
 class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
 
     companion object{
-        @JvmStatic
-        private val LSP_HOOK = "lsp_hook";
+        private const val LSP_HOOK = "lsp_hook";
+        private const val THEME_MODE = "theme_key";
+        private const val LANGUAGE_MODE = "language_key";
         private lateinit var loadingDialog: ProgressDialog
     }
 
@@ -57,12 +60,55 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
                     true
                 }
 
+            val listPreference1 = findPreference<ListPreference>(THEME_MODE)
+            listPreference1!!.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener setOnPreferenceChangeListener@{ _: Preference?, newValue: Any ->
+                    when (newValue as String) {
+                        "follow_system" -> {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        }
+                        "light" -> {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                        }
+                        "dark" -> {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                        }
+                    }
+                    true
+                }
+
+            val listPreference2 = findPreference<ListPreference>(LANGUAGE_MODE)
+            listPreference2!!.onPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener setOnPreferenceChangeListener@{ _: Preference?, newValue: Any ->
+                    when (newValue as String) {
+                        "follow_system" -> {
+                            LanguageUtils.applySystemLanguage(false)
+                        }
+                        "zh_CN" -> {
+                            LanguageUtils.applyLanguage(Locale.SIMPLIFIED_CHINESE,false)
+                        }
+                        "zh_TW" -> {
+                            LanguageUtils.applyLanguage(Locale.TRADITIONAL_CHINESE,false)
+                        }
+                        "english" -> {
+                            LanguageUtils.applyLanguage(Locale.US,false)
+                        }
+                    }
+                    true
+                }
+
             val syncButton = findPreference<Preference>("sync_data")
             syncButton!!.setOnPreferenceClickListener {
                 loadingDialog = ProgressDialog.show(context,"数据加载中", "请稍后...", true, false)
                     LoadDataTask().execute()
                 true
             }
+        }
+
+        private fun updLocale(context: Context?, newLocale: Locale?) {
+            val config = context?.resources?.configuration
+            config?.setLocales(LocaleList(newLocale))
+            context?.resources?.updateConfiguration(config, null)
         }
 
         private inner class LoadDataTask() : AsyncTask<Void?, Void?, Void?>() {

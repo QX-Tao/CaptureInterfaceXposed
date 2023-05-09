@@ -200,6 +200,9 @@ public class SelectAppActivity extends BaseActivity<ActivitySelectAppBinding> {
             appNamesTextView.setText(appNames);
             appVersionTextView.setText("版本: " + versionName);
             appSizeTextView.setText(size);
+            appNamesTextView.setTextColor(getResources().getColor(R.color.firstTextColor));
+            appVersionTextView.setTextColor(getResources().getColor(R.color.secondTextColor));
+            appSizeTextView.setTextColor(getResources().getColor(R.color.secondTextColor));
 
             posMap.put(position, index);
             return convertView;

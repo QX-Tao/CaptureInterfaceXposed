@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorThemeBackground">#FF2D2D2D</color>
+    <color name="colorTextDark">#FFCFCFCF</color>
+    <color name="colorTextGray">#FFD3D3D3</color>
+    <color name="colorPrimaryAccent">#FFBFBFBF</color>
+    <color name="color_title">#FFFFFFFF</color>
+
+
+    <color name="colorPrimary">#03A9F4</color>
+    <color name="colorPrimaryDark">#FF82A8E7</color>
+    <color name="colorAccent">#2D88FF</color>
+
+    <!-- Text Colors -->
+    <color name="firstTextColor">#FFFFFFFF</color>
+    <color name="secondTextColor">#DEFFFFFF</color>
+    <color name="thirdTextColor">#99FFFFFF</color>
+    <color name="whiteTextColor">#FFFFFFFF</color>
+    <color name="rippleColor">#14FFFFFF</color>
+    <color name="divideColor">#14FFFFFF</color>
+    <color name="coverColor">#5d5d5d</color>
+
+
+    <color name="defaultThemeBackgroundColor">#FF303030</color>
+    <color name="defaultThemeBackgroundColorAlpha80">#CC303030</color>
+</resources>

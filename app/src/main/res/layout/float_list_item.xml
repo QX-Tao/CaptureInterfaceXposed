@@ -9,7 +9,6 @@
 
     <ImageView
         android:id="@+id/float_image_view"
-        android:src="@drawable/ic_collect_page_default"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:scaleType="centerCrop"
@@ -31,15 +30,14 @@
             android:layout_alignParentStart="true"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:textColor="@color/grey"
+            android:textColor="@color/secondTextColor"
             android:textSize="11sp" />
 
         <TextView
             android:id="@+id/main_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceListItemSmall"
+            android:textColor="@color/firstTextColor"
             android:textSize="14sp"
             android:maxLines="1"
             android:ellipsize="end"
@@ -62,7 +60,6 @@
             android:layout_marginEnd="8dp"
             android:textColor="@color/thirdTextColor"
             android:text="份数"
-            android:textAppearance="?android:attr/textAppearanceListItem"
             android:textSize="20sp"/>
 
     </RelativeLayout>

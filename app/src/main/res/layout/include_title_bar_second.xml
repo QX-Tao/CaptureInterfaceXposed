@@ -26,7 +26,7 @@
         android:layout_marginStart="8dp"
         android:layout_toEndOf="@+id/iv_back_button"
         android:layout_centerVertical="true"
-        android:textColor="@color/black"
+        android:textColor="@color/color_title"
         android:textSize="20sp"
         android:id="@+id/tv_title" />
 
