@@ -13,6 +13,7 @@ import com.highcapable.yukihookapi.hook.xposed.proxy.IYukiHookXposedInit
 import com.tencent.automationlib.Automation
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import java.io.File
 
 @InjectYukiHookWithXposed(isUsingResourcesHook = false)
 class HookEntry : IYukiHookXposedInit {
@@ -32,21 +33,35 @@ class HookEntry : IYukiHookXposedInit {
             onHandleLoadPackage {
                 val lpparam = it
                 if(!lpparam.isFirstApplication) return@onHandleLoadPackage
-                val packageName = lpparam.packageName
-                if ("android" == packageName || "com.android.captureinterfacexposed" == packageName){
-                    return@onHandleLoadPackage
-                } else {
-                    XposedHelpers.findAndHookMethod(
-                        Activity::class.java, "onCreate",
-                        Bundle::class.java, object : XC_MethodHook() {
-                            override fun afterHookedMethod(param: MethodHookParam) {
-                               // val activity = param.thisObject as Activity
-                               // Toast.makeText(activity, "Target app hook.", Toast.LENGTH_SHORT).show();
-                               // Log.i("UIHierarchyHook", "onCreate called")
-                                Automation.enable(1)
-                                super.afterHookedMethod(param)
-                            }
-                        })
+                when (lpparam.packageName) {
+                    "android" -> {
+                        return@onHandleLoadPackage
+                    }
+                    "com.android.captureinterfacexposed" -> {
+                        XposedHelpers.findAndHookMethod(
+                            "android.app.ContextImpl",lpparam.classLoader, "getSharedPreferencesPath",
+                            String::class.java, object : XC_MethodHook() {
+                                override fun beforeHookedMethod(param: MethodHookParam?) {
+                                    val name: String = param!!.args[0] as String
+                                    val preferencesDir = File("/data/data/com.android.captureinterfacexposed/shared_prefs")
+                                    Log.d("ContextImplHook", "getSharedPreferencesPath: $name")
+                                    param.result = File("$preferencesDir/$name.xml")
+                                }
+                            })
+                    }
+                    else -> {
+                        XposedHelpers.findAndHookMethod(
+                            Activity::class.java, "onCreate",
+                            Bundle::class.java, object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    // val activity = param.thisObject as Activity
+                                    // Toast.makeText(activity, "Target app hook.", Toast.LENGTH_SHORT).show();
+                                    // Log.i("UIHierarchyHook", "onCreate called")
+                                    Automation.enable(1)
+                                    super.afterHookedMethod(param)
+                                }
+                            })
+                    }
                 }
             }
         }

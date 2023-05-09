@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import com.android.captureinterfacexposed.R;
 import com.android.captureinterfacexposed.application.DefaultApplication;
 import com.android.captureinterfacexposed.utils.ConfigUtil;
+import com.android.captureinterfacexposed.utils.ShareUtil;
 import com.android.captureinterfacexposed.utils.factory.ChannelFactory;
 import com.android.captureinterfacexposed.db.PageDataHelper;
 import com.android.captureinterfacexposed.socket.ClientSocket;
@@ -664,8 +665,8 @@ public class FloatWindowService {
      * 返回运行模式：普通、LSP（未激活）、LSP（已激活）
      */
     private int getWorkModeStatus(){
-        String isLspHook = ConfigUtil.getInstance(context).getString(LSP_HOOK,null);
-        if(Objects.equals(isLspHook, "true"))
+        boolean isLspHook = ShareUtil.getBoolean(context, LSP_HOOK,false);
+        if(isLspHook)
             if(YukiHookAPI.Status.INSTANCE.isXposedModuleActive())
                 return 1;
             else

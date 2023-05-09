@@ -16,7 +16,7 @@ import com.android.captureinterfacexposed.application.DefaultApplication
 import com.android.captureinterfacexposed.databinding.ActivitySettingsBinding
 import com.android.captureinterfacexposed.db.PageDataHelper
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
-import com.android.captureinterfacexposed.utils.ConfigUtil
+import com.android.captureinterfacexposed.utils.ShareUtil
 import java.io.File
 
 class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
@@ -42,9 +42,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
     class SettingsFragment() : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
-            val isLspHook = ConfigUtil.getInstance(context).getString(LSP_HOOK,null)
             val switchPreference = findPreference<SwitchPreferenceCompat>(LSP_HOOK)
-            switchPreference?.isChecked = isLspHook == true.toString()
             switchPreference!!.onPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener setOnPreferenceChangeListener@{ _: Preference?, newValue: Any ->
                     val isChecked = newValue as Boolean
@@ -55,7 +53,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
                             return@setOnPreferenceChangeListener false
                         }
                     }
-                    ConfigUtil.getInstance(context).putString(LSP_HOOK,isChecked.toString())
+                    ShareUtil.putBoolean(context, LSP_HOOK,isChecked)
                     true
                 }
 
