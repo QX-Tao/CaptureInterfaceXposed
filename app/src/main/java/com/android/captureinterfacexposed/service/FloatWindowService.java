@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -82,8 +83,8 @@ public class FloatWindowService {
         windowManager = activity.getWindowManager();
         // 创建文件夹
         filePath = getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
-        newDirectory(filePath.toString(), context.getResources().getString(R.string.app_name));
-        filePath = new File(filePath + File.separator + context.getResources().getString(R.string.app_name));
+        newDirectory(filePath.toString(), context.getResources().getString(R.string.collect_folder));
+        filePath = new File(filePath + File.separator + context.getResources().getString(R.string.collect_folder));
         // 数据库
         mDbHelper = new PageDataHelper(context);
     }
@@ -237,7 +238,7 @@ public class FloatWindowService {
                             floatingView.post(() -> floatingView.setVisibility(View.VISIBLE));
                             if(isClick == 0){ // 点击左键
                                 String clickFilePath = filePath + File.separator + CurrentCollectUtil.getCollectPackageName(); // 包名
-                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss", Locale.CHINA);
                                 String dateStr = dateFormat.format(System.currentTimeMillis()); // 时间戳
                                 CurrentCollectUtil.setCollectTime(dateStr);
                                 newDirectory(clickFilePath, dateStr);
@@ -549,8 +550,9 @@ public class FloatWindowService {
             else if(Objects.equals(index.pageCollectNum, "2")) holder.pageCollectIcon.setImageResource(R.drawable.ic_collect_page_default);
             else holder.pageCollectIcon.setImageResource(R.drawable.ic_collect_page_more);
             holder.pageCollectData.setText( index.pageCollectData);
-            holder.pageCollectNum.setText(index.pageCollectNum + "份");
-            holder.pageCollectDesc.setText("收集时间");
+            String tmp = context.getResources().getString(R.string.page_copies);
+            holder.pageCollectNum.setText(String.format(tmp,index.pageCollectNum));
+            holder.pageCollectDesc.setText(context.getResources().getString(R.string.collect_time));
             return convertView;
         }
 
@@ -623,9 +625,11 @@ public class FloatWindowService {
             }
             PageItem index = pageItemList.get(position);
             holder.appIcon.setImageDrawable(index.appIcon);
-            holder.appInfo.setText(index.appName + " (" + index.packageName + ")");
-            holder.pageNum.setText(index.pageNum + "份");
-            holder.pageDesc.setText("应用信息");
+            String tmp1 = context.getResources().getString(R.string.app_infos);
+            holder.appInfo.setText(String.format(tmp1,index.appName,index.packageName));
+            String tmp2 = context.getResources().getString(R.string.page_copies);
+            holder.pageNum.setText(String.format(tmp2,index.pageNum));
+            holder.pageDesc.setText(context.getResources().getString(R.string.app_info));
             return convertView;
         }
 
@@ -650,10 +654,10 @@ public class FloatWindowService {
         } else {
             if (isDisplayPageItemList){
                 bt_switch_app.setVisibility(View.INVISIBLE);
-                bt_refresh.setText("返回");
+                bt_refresh.setText(context.getResources().getString(R.string.back));
             } else {
                 bt_switch_app.setVisibility(View.VISIBLE);
-                bt_refresh.setText("刷新列表");
+                bt_refresh.setText(context.getResources().getString(R.string.refresh_list));
             }
         }
         windowManager.updateViewLayout(floatListView, floatListViewLayoutParams);

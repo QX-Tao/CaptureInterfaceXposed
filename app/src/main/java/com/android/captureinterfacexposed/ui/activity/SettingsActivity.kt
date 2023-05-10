@@ -51,7 +51,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
                     val isChecked = newValue as Boolean
                     if (isChecked) {
                         if (!DefaultApplication.isDeviceRooted()) {
-                            Toast.makeText(context, "请先授予应用ROOT权限", Toast.LENGTH_SHORT)
+                            Toast.makeText(context, getString(R.string.grant_root), Toast.LENGTH_SHORT)
                                 .show()
                             return@setOnPreferenceChangeListener false
                         }
@@ -99,7 +99,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
 
             val syncButton = findPreference<Preference>("sync_data")
             syncButton!!.setOnPreferenceClickListener {
-                loadingDialog = ProgressDialog.show(context,"数据加载中", "请稍后...", true, false)
+                loadingDialog = ProgressDialog.show(context,getString(R.string.load_data_title), getString(R.string.load_data_desc), true, false)
                     LoadDataTask().execute()
                 true
             }
@@ -120,7 +120,7 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
             @Deprecated("Deprecated in Java")
             override fun onPostExecute(aVoid: Void?) {
                 loadingDialog.dismiss() // 关闭进度条
-                Toast.makeText(context,"数据已加载",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,getString(R.string.data_loaded),Toast.LENGTH_SHORT).show()
             }
 
             /**
@@ -132,10 +132,10 @@ class SettingsActivity : BaseActivity<ActivitySettingsBinding>() {
                 val mDbHelper = PageDataHelper(context!!.applicationContext)
                 mDbHelper.clearDatabase()
                 var filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                when(newDirectory(filePath.toString(), context!!.applicationContext.resources.getString(R.string.app_name))){
+                when(newDirectory(filePath.toString(), context!!.applicationContext.resources.getString(R.string.collect_folder))){
                     true -> return
                     false -> {
-                        filePath = File(filePath.toString() + File.separator + context!!.applicationContext.resources.getString(R.string.app_name))
+                        filePath = File(filePath.toString() + File.separator + context!!.applicationContext.resources.getString(R.string.collect_folder))
                         val subdirectories = getSubdirectories(filePath.toString()) // appName subdirectories -> pkgName
                         if (subdirectories.isEmpty()) return
                         subdirectories.forEach { it1 -> // pkgName

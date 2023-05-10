@@ -57,8 +57,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private val startSelectAppActivityForResult = registerForActivityResult(SelectAppActivityResultContract()){ result ->
         result?.let {
             val (appName, packageName) = it
-            binding.tvSelectAppTitle.text = "已选择: $appName"
-            binding.tvSelectAppDesc.text = "包名: $packageName"
+            binding.tvSelectAppTitle.text = getString(R.string.app_title,appName)
+            binding.tvSelectAppDesc.text = getString(R.string.app_desc,packageName)
             ShareUtil.putString(applicationContext,SELECT_APP_NAME,appName)
             ShareUtil.putString(applicationContext,SELECT_PACKAGE_NAME,packageName)
             binding.llSelectAppMenu.visibility = View.VISIBLE
@@ -152,11 +152,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     }
                     0 -> {
                         CurrentCollectUtil.setLeftButtonClickable(false)
-                        Toast.makeText(applicationContext,"模块未激活，请重试。",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext,getString(R.string.module_not_activated),Toast.LENGTH_SHORT).show()
                     }
                     1 -> {
                         if (hookPackageName == null) {
-                            Toast.makeText(applicationContext, "包名错误，请重试。", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(applicationContext, getString(R.string.error_package_name), Toast.LENGTH_SHORT).show()
                         } else {
                             if(CurrentCollectUtil.getCollectPackageName() != null){
                                 DefaultApplication.killApp(CurrentCollectUtil.getCollectPackageName())
@@ -169,7 +169,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     }
                 }
             } else {
-                Toast.makeText(applicationContext,"服务未开启，请先开启服务。",Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,getString(R.string.service_not_enable),Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -185,20 +185,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             -1 -> {
                 binding.llWorkMode.setBackgroundResource(R.drawable.bg_yellow_solid)
                 binding.ivWorkMode.setImageResource(R.drawable.ic_success_white)
-                binding.tvWorkModeTitle.text = "普通模式"
-                binding.tvWorkModeDesc.text = "使用普通模式运行中"
-                val appName = ShareUtil.putString(applicationContext,SELECT_APP_NAME,null)
-                val packageName = ShareUtil.putString(applicationContext,SELECT_PACKAGE_NAME,null)
+                binding.tvWorkModeTitle.text = getString(R.string.normal_mode)
+                binding.tvWorkModeDesc.text = getString(R.string.normal_mode_desc)
+                ShareUtil.putString(applicationContext,SELECT_APP_NAME,null)
+                ShareUtil.putString(applicationContext,SELECT_PACKAGE_NAME,null)
                 refreshSelectStatus()
                 binding.llSelectApp.setOnClickListener {
-                    Toast.makeText(applicationContext,"普通模式下不需要选择应用",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,getString(R.string.normal_mode_hint),Toast.LENGTH_SHORT).show()
                 }
                 binding.btStartCollect.visibility = View.VISIBLE
             }
             0 -> {
                 binding.llWorkMode.setBackgroundResource(R.drawable.bg_red_solid)
                 binding.ivWorkMode.setImageResource(R.drawable.ic_failure_white)
-                binding.tvWorkModeTitle.text = ("LSP注入模式(" + getString(R.string.module_not_activated) + ")")
+                binding.tvWorkModeTitle.text = getString(R.string.lsp_mode,getString(R.string.module_not_activated))
                 binding.tvWorkModeDesc.text = getString(R.string.module_version, BuildConfig.VERSION_NAME)
                 binding.llSelectApp.setOnClickListener {
                     startSelectAppActivityForResult.launch(null)
@@ -207,7 +207,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             1 -> {
                 binding.llWorkMode.setBackgroundResource(R.drawable.bg_green_solid)
                 binding.ivWorkMode.setImageResource(R.drawable.ic_success_white)
-                binding.tvWorkModeTitle.text = "LSP注入模式(" + getString(R.string.module_is_activated) + ")"
+                binding.tvWorkModeTitle.text = getString(R.string.lsp_mode,getString(R.string.module_is_activated))
                 binding.tvWorkModeDesc.text = getString(R.string.module_version, BuildConfig.VERSION_NAME)
                 binding.llSelectApp.setOnClickListener {
                     startSelectAppActivityForResult.launch(null)
@@ -227,12 +227,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         if (appName == null){
             binding.tvSelectAppTitle.text = getString(R.string.select_app)
         } else {
-            binding.tvSelectAppTitle.text = "已选择: $appName"
+            binding.tvSelectAppTitle.text = getString(R.string.app_title,appName)
         }
         if (packageName == null){
             binding.tvSelectAppDesc.text = getString(R.string.select_app_desc)
         } else {
-            binding.tvSelectAppDesc.text = "包名: $packageName"
+            binding.tvSelectAppDesc.text = getString(R.string.app_desc,packageName)
         }
         if (appName == null || packageName == null){
             binding.llSelectAppMenu.visibility = View.GONE
@@ -327,14 +327,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun selectWorkModeDialog() {
         val builder = AlertDialog.Builder(this@MainActivity)
-        val alertDialog: AlertDialog = builder.setTitle("工作模式")
-            .setMessage("在第一次打开应用时 需要选择工作模式")
-            .setPositiveButton("普通模式"){ _, _ ->
+        val alertDialog: AlertDialog = builder.setTitle(getString(R.string.working_mode))
+            .setMessage(getString(R.string.work_mode_desc))
+            .setPositiveButton(getString(R.string.normal_mode)){ _, _ ->
                 ShareUtil.putBoolean(applicationContext,LSP_HOOK,false)
                 ShareUtil.putBoolean(applicationContext,WORK_MODE,true)
                 refreshModuleStatus()
             }
-            .setNegativeButton("LSP注入", null)
+            .setNegativeButton(getString(R.string.lsp_mode_inject), null)
             .setCancelable(false)
             .show()
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(
@@ -345,7 +345,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     DefaultApplication.enableLSP(packageName)
                 } else {
                     alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).visibility = View.GONE
-                    Toast.makeText(applicationContext, "请先授予应用ROOT权限", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, getString(R.string.grant_root), Toast.LENGTH_SHORT).show()
                     return@OnClickListener
                 }
                 refreshModuleStatus()
@@ -363,16 +363,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun workModeDialog() {
         val builder = AlertDialog.Builder(this@MainActivity)
-        builder.setTitle("运行信息")
+        builder.setTitle(getString(R.string.running_info))
         when(getWorkModeStatus()){
-            -1 -> builder.setMessage("当前使用普通模式，您需要手动对应用进行插桩及安装，点击开始收集后将返回桌面，进入插桩应用即可进行收集。")
+            -1 -> builder.setMessage(getString(R.string.normal_running_desc))
             0 -> {
                 DefaultApplication.enableLSP(packageName)
-                builder.setMessage("已开启LSP注入模式，模块未激活，已尝试加载LSP作用域，可能需要重启手机。")
+                builder.setMessage(getString(R.string.lsp_off_running_desc))
             }
-            1 -> builder.setMessage("当前使用LSP注入模式，您需要选择一个应用，点击开始收集即可运行应用并进行收集。")
+            1 -> builder.setMessage(getString(R.string.lsp_on_running_desc))
         }
-        builder.setPositiveButton("确定",null)
+        builder.setPositiveButton(getString(R.string.confirm),null)
         builder.create().show()
     }
 
@@ -383,9 +383,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun helpDialog() {
         val builder = AlertDialog.Builder(this@MainActivity)
-        builder.setTitle("提示")
-        builder.setMessage("如LSP注入模式无法正常使用，可打开LSPosed查看状态，需确保模块作用域包含“系统框架(android)”和待测APP，点击“确定”以打开LSPosed")
-        builder.setPositiveButton("确定") {_, _ -> DefaultApplication.startApp("org.lsposed.manager")}
+        builder.setTitle(getString(R.string.hint))
+        builder.setMessage(getString(R.string.hint_desc))
+        builder.setPositiveButton(getString(R.string.confirm)) {_, _ -> DefaultApplication.startApp("org.lsposed.manager")}
         builder.create().show()
     }
 
@@ -396,7 +396,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun setUpFloatingView() {
         floatingView.setActivity(this)
-        loadingDialog = ProgressDialog.show(this@MainActivity,"数据加载中", "请稍后...", true, false)
+        loadingDialog = ProgressDialog.show(this@MainActivity,getString(R.string.load_data_title), getString(R.string.load_data_desc), true, false)
         LoadDataTask().execute()
     }
 
@@ -435,8 +435,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun checkRunningPermission() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.layout_permission_dialog, null)
         val dialog = AlertDialog.Builder(this)
-            .setTitle("需要权限")
-            .setMessage("为了软件的正常运行，您需要授予以下权限才能使用应用。")
+            .setTitle(getString(R.string.need_permission))
+            .setMessage(getString(R.string.need_permission_desc))
             .setView(dialogView)
             .setCancelable(false)
             .create()
@@ -495,7 +495,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             if (refreshPermissionStatus().contentEquals(intArrayOf(1, 1, 1, 1))) {
                 dialog.cancel()
             } else{
-                Toast.makeText(applicationContext,"请授予所有权限，点击刷新可刷新权限状态",Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,getString(R.string.need_all_permission),Toast.LENGTH_SHORT).show()
             }
         }
         refreshButton.setOnClickListener {
@@ -532,9 +532,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 startActivity(intent)
             } else {
                 if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                    Toast.makeText(applicationContext, "查看结果需要存储权限", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, getString(R.string.need_storage_permission), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(applicationContext, "查看结果需要存储权限和所有文件权限", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, getString(R.string.need_storage_all_file_permission), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -552,7 +552,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             } else {
                 // 未授予读写权限，动态请求权限
                 if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    Toast.makeText(applicationContext, "请授予应用存储权限。", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, getString(R.string.grant_storage_permission), Toast.LENGTH_SHORT).show()
                     // 用户拒绝授权，但未选择 "不再询问"，延迟一秒后再次申请
                     Handler(Looper.getMainLooper()).postDelayed({
                         requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQUEST_PERMISSIONS_CODE) }, 1000)
@@ -561,7 +561,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                     intent.data = Uri.fromParts("package", packageName, null)
                     startActivity(intent)
-                    Toast.makeText(applicationContext, "请授予应用存储权限。", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, getString(R.string.grant_storage_permission), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -599,7 +599,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private fun checkAllFilePermission(){
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
         if (!isAllFilePermissionOn()) {
-            Toast.makeText(applicationContext, "请找到“界面信息收集”，并打开所有文件权限。", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, getString(R.string.grant_all_file_permission), Toast.LENGTH_SHORT).show()
             val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
             startActivity(intent)
         }
@@ -625,7 +625,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun applyOverlayPermission() {
         if (!Settings.canDrawOverlays(this)) {
-            Toast.makeText(applicationContext, "请找到“界面信息收集”，并打开悬浮窗权限。", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, getString(R.string.grant_overlay_permission), Toast.LENGTH_SHORT).show()
             val intent = Intent()
             intent.action = Settings.ACTION_MANAGE_OVERLAY_PERMISSION
             intent.data = Uri.parse("package:$packageName")
@@ -652,7 +652,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
      */
     private fun checkAccessibility() {
         if (!isAccessibilitySettingsOn(this)) {
-            Toast.makeText(applicationContext, "请打开“界面信息收集”的无障碍功能", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, getString(R.string.grant_accessibility_service), Toast.LENGTH_SHORT).show()
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             startActivity(intent)
         }

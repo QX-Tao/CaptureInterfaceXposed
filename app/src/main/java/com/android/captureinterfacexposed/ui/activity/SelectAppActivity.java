@@ -39,7 +39,7 @@ import java.util.List;
 public class SelectAppActivity extends BaseActivity<ActivitySelectAppBinding> {
     private ListView appListView;
     private SearchView searchView;
-    private HashMap<Integer, Integer> posMap = new HashMap<>();
+    private final HashMap<Integer, Integer> posMap = new HashMap<>();
     private ProgressDialog loadingDialog;
     private static List<ApplicationInfo> appList;
     private static ArrayList<AppItem> appItemList;
@@ -57,7 +57,7 @@ public class SelectAppActivity extends BaseActivity<ActivitySelectAppBinding> {
         searchView = binding.searchView;
 
         if(appList == null || appItemList == null){
-            loadingDialog = ProgressDialog.show(SelectAppActivity.this, "数据加载中", "请稍后...", true, false);
+            loadingDialog = ProgressDialog.show(SelectAppActivity.this, getString(R.string.load_data_title), getString(R.string.load_data_desc), true, false);
             new LoadDataTask().execute();
         } else {
             adapter = new AppListAdapter(appItemList);
@@ -198,7 +198,7 @@ public class SelectAppActivity extends BaseActivity<ActivitySelectAppBinding> {
 
             appIconImageView.setImageDrawable(appIcon);
             appNamesTextView.setText(appNames);
-            appVersionTextView.setText("版本: " + versionName);
+            appVersionTextView.setText(getResources().getString(R.string.app_version,versionName));
             appSizeTextView.setText(size);
             appNamesTextView.setTextColor(getResources().getColor(R.color.firstTextColor));
             appVersionTextView.setTextColor(getResources().getColor(R.color.secondTextColor));
@@ -292,7 +292,7 @@ public class SelectAppActivity extends BaseActivity<ActivitySelectAppBinding> {
                 appListView.setAdapter(null);
                 appList.clear();
                 appItemList.clear();
-                loadingDialog = ProgressDialog.show(SelectAppActivity.this, "数据加载中", "请稍后...", true, false);
+                loadingDialog = ProgressDialog.show(SelectAppActivity.this, getString(R.string.load_data_title), getString(R.string.load_data_desc), true, false);
                 new LoadDataTask().execute();
             }
             return true;

@@ -11,7 +11,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.content.ContextCompat
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityDataBinding
 import com.android.captureinterfacexposed.db.PageDataHelper
@@ -33,11 +32,11 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
     private val zipFileNames = mutableListOf<String>()
 
     override fun onCreate() {
-        binding.includeTitleBarSecond.tvTitle.text = getString(R.string.cellect_result)
+        binding.includeTitleBarSecond.tvTitle.text = getString(R.string.collect_result)
         binding.includeTitleBarSecond.ivBackButton.setOnClickListener { onBackPressed() }
         binding.includeTitleBarSecond.ivMoreButton.setOnClickListener { showPopupMenu(binding.includeTitleBarSecond.ivMoreButton) }
         pageDataHelper = PageDataHelper(this)
-        loadingDialog = ProgressDialog.show(this@DataActivity,"数据加载中", "请稍后...", true, false)
+        loadingDialog = ProgressDialog.show(this@DataActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
         LoadDataTask(1).execute()
         binding.includeTitleBarOperate.ivBackButton.setOnClickListener {
             selectedItems.clear()
@@ -54,7 +53,8 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                 }
                 pageItemAdapter.notifyDataSetChanged()
             }
-            binding.includeTitleBarOperate.tvTitle.text = "已选" + selectedItems.size +"项"
+            val tmp = resources.getString(R.string.select_num)
+            binding.includeTitleBarOperate.tvTitle.text = String.format(tmp,selectedItems.size)
         }
         binding.includeTitleBarOperate.ivCheckInvert.setOnClickListener {
             val newSelectedItems = mutableSetOf<Int>()
@@ -64,7 +64,8 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                 }
             }
             selectedItems = newSelectedItems
-            binding.includeTitleBarOperate.tvTitle.text = "已选" + selectedItems.size +"项"
+            val tmp = resources.getString(R.string.select_num)
+            binding.includeTitleBarOperate.tvTitle.text = String.format(tmp,selectedItems.size)
             if(selectedItems.size == 0){
                 selectedItems.clear()
                 isMultiSelectMode = false
@@ -93,7 +94,7 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
         binding.btExportData.setOnClickListener {
             zipFileNames.clear()
             filePath1 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            filePath1 = File(filePath1.toString() + File.separator + applicationContext.resources.getString(R.string.app_name))
+            filePath1 = File(filePath1.toString() + File.separator + applicationContext.resources.getString(R.string.collect_folder))
             if (isMultiSelectMode){
                 selectedItems.forEach {
                     val zipTmpFileName = pageItemList!![it].packageName
@@ -105,7 +106,7 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                     zipFileNames.add(filePath1.toString() + File.separator + zipTmpFileName)
                 }
             }
-            loadingDialog = ProgressDialog.show(this@DataActivity,"处理中", "请稍后...", true, false)
+            loadingDialog = ProgressDialog.show(this@DataActivity,resources.getString(R.string.processing_title), resources.getString(R.string.processing_desc), true, false)
             LoadDataTask(2).execute()
         }
     }
@@ -129,7 +130,7 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                 }
                 2 -> {
                     loadingDialog.dismiss() // 关闭进度条
-                    Toast.makeText(applicationContext,"数据已导出",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,resources.getString(R.string.data_exported),Toast.LENGTH_SHORT).show()
                     selectedItems.clear()
                     isMultiSelectMode = false
                     binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
@@ -183,7 +184,8 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             }
             holder.appName.text = index.appName
             holder.packageName.text = index.packageName
-            holder.pageNum.text = index.pageNum + "份"
+            val tmp = resources.getString(R.string.page_copies)
+            holder.pageNum.text = String.format(tmp,index.pageNum)
             holder.appName.setTextColor(resources.getColor(R.color.firstTextColor))
             holder.packageName.setTextColor(resources.getColor(R.color.secondTextColor))
             holder.pageNum.setTextColor(resources.getColor(R.color.thirdTextColor))
@@ -243,7 +245,8 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
         } else {
             selectedItems.add(position)
         }
-        binding.includeTitleBarOperate.tvTitle.text = "已选" + selectedItems.size +"项"
+        val tmp = resources.getString(R.string.select_num)
+        binding.includeTitleBarOperate.tvTitle.text = String.format(tmp,selectedItems.size)
         if(selectedItems.size == 0){ // 未选中某一项 则退出MultiSelectMode
             isMultiSelectMode = false
             binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
@@ -269,7 +272,7 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                 pageItemList = null
                 pageTmpList = null
                 binding.pageItemListView.adapter = null
-                loadingDialog = ProgressDialog.show(this@DataActivity,"数据加载中", "请稍后...", true, false)
+                loadingDialog = ProgressDialog.show(this@DataActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
                 LoadDataTask(1).execute()
             }
             true
@@ -319,7 +322,7 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
      */
     private fun delPageData(pkgName: String){
         var filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.app_name))
+        filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.collect_folder))
         if (filePath.exists() && filePath.isDirectory) {
             val files = filePath.listFiles()
             for (file in files) {

@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 
 
 /**
+ * Screen recording service
  * 屏幕录制服务
  */
 public class ScreenShotService extends Service {
@@ -53,8 +54,8 @@ public class ScreenShotService extends Service {
         notificationManager.createNotificationChannel(channel);
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("界面信息采集")
-                .setContentText("收集实时截屏...")
+                .setContentTitle(getApplicationContext().getResources().getString(R.string.screen_service_label))
+                .setContentText(getApplicationContext().getResources().getString(R.string.screen_service_description))
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .build();
 
@@ -166,7 +167,7 @@ public class ScreenShotService extends Service {
      */
     public static Bitmap image2Bitmap(Image image) {
         if (image == null) {
-            System.out.println("image 为空");
+            Log.d("Image error","Empty image!");
             return null;
         }
         int width = image.getWidth();
