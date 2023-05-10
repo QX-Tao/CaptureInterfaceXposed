@@ -57,12 +57,18 @@
     <string name="collect_time">收集时间</string>
     <string name="app_info">应用信息</string>
     <string name="back">返回</string>
+    <string name="delete">删除</string>
+    <string name="select_all">全选</string>
+    <string name="select_invert">反选</string>
+    <string name="switch_app">切换应用</string>
     <string name="page_copies">%1$s份</string>
     <string name="app_infos">%1$1s (%2$1s)</string>
     <string name="load_data_title">数据加载中</string>
     <string name="load_data_desc">请稍候…</string>
     <string name="processing_title">处理中</string>
     <string name="processing_desc">请稍候…</string>
+    <string name="export_data">导出数据</string>
+    <string name="search_app">搜索应用</string>
     <string name="data_exported">数据已导出</string>
     <string name="data_loaded">数据已加载</string>
     <string name="select_num">已选%1$1s项</string>
@@ -97,6 +103,24 @@
     <string name="grant_overlay_permission">请找到“界面信息收集”，并打开悬浮窗权限。</string>
     <string name="grant_accessibility_service">请找到“界面信息收集”，并打开无障碍功能。</string>
     <string name="app_version">版本: %1$1s</string>
+    <string name="select_save_path">选择保存的路径</string>
+    <string name="current">当前: </string>
+    <string name="storage_permission">存储权限</string>
+    <string name="storage_permission_desc">请授予存储权限，以便进行应用界面收集时数据的存储</string>
+    <string name="all_file_permission">所有文件权限</string>
+    <string name="all_file_permission_desc">安卓11及以上系统，需要授予所有文件管理权限</string>
+    <string name="overlay_permission">悬浮窗权限</string>
+    <string name="overlay_permission_desc">请授予悬浮窗权限，以便开启程序功能浮窗</string>
+    <string name="accessibility_service">无障碍功能权限</string>
+    <string name="accessibility_service_desc">请打开无障碍功能开关，以便程序使用无障碍功能获取界面数据</string>
+    <string name="theme">主题</string>
+    <string name="language">语言</string>
+    <string name="sync_data_title">同步数据文件</string>
+    <string name="sync_data_desc">应用重装后可能导致数据库数据丢失，此时可以同步本地数据文件至数据库。</string>
+    <string name="follow_system">跟随系统</string>
+    <string name="light">浅色</string>
+    <string name="dark">深色</string>
+
 
 
 </resources>

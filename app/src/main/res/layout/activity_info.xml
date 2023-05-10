@@ -42,7 +42,7 @@
             android:backgroundTint="@color/theme_color_ftb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="导出数据" />
+            android:text="@string/export_data" />
 
     </RelativeLayout>
 

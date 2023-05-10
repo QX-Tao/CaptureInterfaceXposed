@@ -44,14 +44,14 @@
                             android:textColor="@color/secondTextColor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="存储权限"
+                            android:text="@string/storage_permission"
                             android:textSize="16sp" />
 
                         <TextView
                             android:textColor="@color/thirdTextColor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="请授予存储权限，以便进行应用界面收集时数据的存储"
+                            android:text="@string/storage_permission_desc"
                             android:textSize="12sp" />
 
                     </LinearLayout>
@@ -86,14 +86,14 @@
                             android:textColor="@color/secondTextColor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="所有文件权限"
+                            android:text="@string/all_file_permission"
                             android:textSize="16sp" />
 
                         <TextView
                             android:textColor="@color/thirdTextColor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="安卓11及以上系统，需要授予所有文件管理权限"
+                            android:text="@string/all_file_permission_desc"
                             android:textSize="12sp" />
 
                     </LinearLayout>
@@ -128,14 +128,14 @@
                             android:textColor="@color/secondTextColor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="悬浮窗权限"
+                            android:text="@string/overlay_permission"
                             android:textSize="16sp" />
 
                         <TextView
                             android:textColor="@color/thirdTextColor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="请授予悬浮窗权限，以便开启程序功能浮窗"
+                            android:text="@string/overlay_permission_desc"
                             android:textSize="12sp" />
 
                     </LinearLayout>
@@ -170,14 +170,14 @@
                             android:textColor="@color/secondTextColor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="无障碍功能权限"
+                            android:text="@string/accessibility_service"
                             android:textSize="16sp" />
 
                         <TextView
                             android:textColor="@color/thirdTextColor"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="请打开无障碍功能开关，以便程序使用无障碍功能获取界面数据"
+                            android:text="@string/accessibility_service_desc"
                             android:textSize="12sp" />
 
                     </LinearLayout>
@@ -212,7 +212,7 @@
                     android:textColor="@color/colorPrimaryAccent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="收集结果"/>
+                    android:text="@string/collect_result"/>
 
                 <TextView
                     android:layout_width="0dp"
@@ -232,7 +232,7 @@
                     android:textColor="@color/colorPrimaryAccent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="刷新"/>
+                    android:text="@string/refresh"/>
 
                 <TextView
                     android:id="@+id/bt_permission_confirm"
@@ -247,7 +247,7 @@
                     android:textColor="@color/colorPrimaryAccent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="确定"/>
+                    android:text="@string/confirm"/>
 
             </LinearLayout>
 

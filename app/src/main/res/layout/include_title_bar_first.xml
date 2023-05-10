@@ -24,7 +24,7 @@
         android:layout_height="36dp"
         android:layout_centerVertical="true"
         android:layout_alignParentEnd="true"
-        android:tooltipText="更多"
+        android:tooltipText="@string/more"
         android:background="@drawable/bg_ripple_r18"
         android:src="@drawable/ic_more_black"/>
 

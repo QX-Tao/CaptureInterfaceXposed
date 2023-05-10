@@ -19,7 +19,7 @@
             app:entries="@array/theme_titles"
             app:entryValues="@array/theme_values"
             app:key="theme_key"
-            app:title="主题"
+            app:title="@string/theme"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
@@ -27,7 +27,7 @@
             app:entries="@array/language_titles"
             app:entryValues="@array/language_values"
             app:key="language_key"
-            app:title="语言"
+            app:title="@string/language"
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
@@ -36,8 +36,8 @@
 
         <Preference
             app:key="sync_data"
-            android:title="同步数据文件"
-            android:summary="应用重装后可能导致数据库数据丢失，此时可以同步本地数据文件至数据库" />
+            android:title="@string/sync_data_title"
+            android:summary="@string/sync_data_desc" />
 
     </PreferenceCategory>
 

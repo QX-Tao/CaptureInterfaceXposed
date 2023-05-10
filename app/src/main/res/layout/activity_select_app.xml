@@ -12,7 +12,7 @@
 
     <SearchView
         android:id="@+id/search_view"
-        android:queryHint="搜索应用"
+        android:queryHint="@string/search_app"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

@@ -30,7 +30,7 @@
     <string name="help">Help</string>
     <string name="select_app">Select an app</string>
     <string name="clear_select">Clear Selection</string>
-    <string name="start_collect">Start collecting</string>
+    <string name="start_collect">Start collection</string>
     <string name="open_app">Open the app</string>
     <string name="start_service">Start service</string>
     <string name="stop_service">Stop service</string>
@@ -58,12 +58,18 @@
     <string name="collect_time">Collect time</string>
     <string name="app_info">App info</string>
     <string name="back">Back</string>
+    <string name="delete">Delete</string>
+    <string name="select_all">Select all</string>
+    <string name="select_invert">Select Invert</string>
+    <string name="switch_app">Switch app</string>
     <string name="page_copies">%1$s copies</string>
     <string name="app_infos">%1$1s ( %2$1s )</string>
     <string name="load_data_title">Loading data</string>
     <string name="load_data_desc">Please wait…</string>
     <string name="processing_title">Being Processed</string>
     <string name="processing_desc">Please wait…</string>
+    <string name="search_app">Search app</string>
+    <string name="export_data">Export data</string>
     <string name="data_exported">Data exported</string>
     <string name="data_loaded">Data loaded</string>
     <string name="select_num">%1$1s items selected</string>
@@ -98,9 +104,23 @@
     <string name="grant_overlay_permission">Find "Capture Interface" and enable overlay permission</string>
     <string name="grant_accessibility_service">Find "Capture Interface" and enable accessibility service</string>
     <string name="app_version">Version: %1$1s</string>
-
-
-
+    <string name="select_save_path">Select a save path</string>
+    <string name="current">Current: </string>
+    <string name="storage_permission">Storage permission</string>
+    <string name="storage_permission_desc">Grant storage permission to store data for application interface collection</string>
+    <string name="all_file_permission">All file permission</string>
+    <string name="all_file_permission_desc">For Android 11 or later, you need to grant all file permission</string>
+    <string name="overlay_permission">Overlay permission</string>
+    <string name="overlay_permission_desc">Grant overlay permission to enable program function float Windows</string>
+    <string name="accessibility_service">Accessibility service</string>
+    <string name="accessibility_service_desc">Enable accessibility so that the program can use the barrier free function to obtain interface data </string>
+    <string name="theme">Theme</string>
+    <string name="language">Language</string>
+    <string name="sync_data_title">Synchronous data file</string>
+    <string name="sync_data_desc">Database data may be lost after the application is reinstalled. In this case, you can synchronize local data files to the database.</string>
+    <string name="follow_system">Follow system</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
 
 
 </resources>
