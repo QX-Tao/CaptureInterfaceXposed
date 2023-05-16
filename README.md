@@ -4,7 +4,7 @@
 1. 安装Magisk，并使用Magisk接管root
 2. 安装LSP_Mod，（对比LSP增加命令行功能）
 3. 安装界面信息收集
-4. 收集数据 
+4. 收集数据（使用向）
 
 ### 详细步骤
 
@@ -46,24 +46,30 @@
 
    - Code：https://github.com/QX-Tao/CaptureInterfaceXposed
 
-     下载地址：https://wwtp.lanzoul.com/iTyfN0tvy6hi 密码:hb9c
+     下载地址：https://wwtp.lanzoul.com/iz2YS0walvfa 密码:9gor
 
-   - 打开界面信息收集，授予root权限，点击确定，重启完成后即可。 
+   - 打开界面信息收集，授予运行权限，即可进入应用。应用主界面及设置界面如下。
 
-     <img src="https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230425113017187.png" alt="image-20230425113017187" style="zoom: 50%;" />
+     ![image-20230516102556225](https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230516102556225.png)
 
-4. 收集数据
+4. 收集数据（使用向）
 
-   - 点击选择应用，选择需要收集数据（Hook）的应用程序，点击HOOK并打开应用即可。
+   - 软件介绍：进入软件后，会提示需要权限，安卓版本不同，所需权限亦不同；用户授予所有权限后，方可进入应用。软件所实现的主要功能为收集界面数据，提供普通模式和LSP注入模式，用户可以在设置中自由切换工作模式。其他已实现功能：查看收集结果、同步数据文件、多语言切换、主题切换等。
 
-     程序会自动加载LSP作用域，不需要到LSP中手动勾选。
+     - LSP注入模式下，用户需要首先授予应用ROOT权限，软件会自动加载LSP作用域，（此时可能需要重启手机），待软件提示“LSP注入(模块已激活)”，即表示LSP注入模式开启成功；若是提示“LSP注入(模块未激活)”，则表示LSP作用域加载失败，此时无法收集数据，用户可以打开LSPosed查看激活状态，需确保模块作用域包含“系统框架(android)”，并重启手机。在LSP注入模式正常工作时，用户需要点击“选择应用”，选择需要收集数据（Hook）的应用程序，在选择应用后，点击“开启服务”，再点击“开始收集”，即可收集数据。
 
-     ![image-20230425113647667](https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230425113647667.png)
+       ![image-20230516105738429](https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230516105738429.png)
 
-   - 收集数据时有两个按钮，先点按钮1（蓝色），表明开始收集，如果接下来收集的还是同一个界面，那就点击按钮2（绿色）收集，直到切换到了另一个页面，就再次点击按钮1（蓝色）重启逻辑。
+     - 普通模式下，用户需要手动对待测APP进行插桩，此时不再需要“选择应用”，点击“开启服务”，再点击“开始收集”，软件会自动返回桌面，此时打开已插桩的待测APP，即可收集数据。
 
+       ![image-20230516105400724](https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230516105400724.png)
+
+   - 在正常进入收集数据时，屏幕左上角会展现浮窗，其具备两个按钮，先点按钮1（蓝色），表明开始收集，如果接下来收集的还是同一个界面，那就点击按钮2（绿色）收集，直到切换到了另一个页面，就再次点击按钮1（蓝色）重启逻辑。
+
+     用户可以长按按钮2（绿色）打开功能面板，此时可以切换收集路径，亦可以切换收集应用（普通模式不支持）。
+   
      蓝色按钮创建文件夹并保存文件；绿色按钮仅保存文件，未创建文件夹时点击无效。
-
-     <img src="https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230425113910138.png" alt="image-20230425113910138" style="zoom:33%;" />
-
-   - 收集到的数据保存到：/storage/emulated/0/Download/界面信息收集/，并以包名区分应用程序，以点击时间区分单元数据。
+   
+     ![image-20230516111256971](https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230516111256971.png)
+   
+   - 收集到的数据保存到：/storage/emulated/0/Download/CaptureInterface/，并以包名区分应用程序，以点击时间区分单元数据。
