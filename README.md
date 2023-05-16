@@ -22,7 +22,7 @@
 
    - 底部Tab（4个按钮），都可以点击，就正常了。
 
-     <img src="https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230425110942909.png" alt="image-20230425110942909" style="zoom:50%;" />
+     ![image-20230516111641347](https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230516111641347.png)
 
 2. 安装LSP_Mod，（对比LSP增加命令行功能）
 
@@ -36,7 +36,7 @@
 
    - 重启完成后，打开Magisk，如以上状态则安装成功。
 
-     <img src="https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230425111851107.png" alt="image-20230425111851107" style="zoom:33%;" />
+     ![image-20230516111706092](https://gitee.com/pan_yitao/cloud-image/raw/master/image/image-20230516111706092.png)
 
    - 打开LSPosed，点击“齿轮（设置）”，打开Enable CLI，并将Session timeout in minutes 设为Disabled。
 
