@@ -149,6 +149,7 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
         jsonObject.put("long-clickable", node.isLongClickable());
         jsonObject.put("password", node.isPassword());
         jsonObject.put("selected", node.isSelected());
+        jsonObject.put("isVisibleToUser",node.isVisibleToUser());
         Rect bounds = new Rect();
         node.getBoundsInParent(bounds);
         jsonObject.put("boundsInParent", bounds.toString().substring(4));
