@@ -56,9 +56,15 @@
             android:id="@+id/collect_page_num_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
             android:textColor="@color/thirdTextColor"
             android:textSize="24sp"/>
+
+        <ImageView
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_right_gray"
+            android:layout_toEndOf="@id/collect_page_num_text_view"/>
 
     </RelativeLayout>
 

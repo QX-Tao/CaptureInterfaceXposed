@@ -24,6 +24,8 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
         private lateinit var loadingDialog: ProgressDialog
         private var pageItemList: List<PageItem>? = null
         private var pageTmpList:  List<PageDataHelper.Page>? = null
+        @JvmStatic
+        private val DATA_REQUEST_CODE = 100
     }
     private var selectedItems = mutableSetOf<Int>()
     private var isMultiSelectMode = false
@@ -219,7 +221,7 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                     intent.putExtra("app_name", appName)
                     intent.putExtra("package_name", pkgName)
                     intent.putExtra("mid",mid)
-                    startActivity(intent)
+                    startActivityForResult(intent,DATA_REQUEST_CODE)
                 }
             }
             // 如果处于多选状态，则根据选中状态设置背景颜色
@@ -336,7 +338,7 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
         filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.collect_folder))
         if (filePath.exists() && filePath.isDirectory) {
             val files = filePath.listFiles()
-            for (file in files) {
+            for (file in files!!) {
                 if (file.name == pkgName) {
                     deleteRecursive(file)
                     break
@@ -469,6 +471,26 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             e.printStackTrace()
         }
         return null
+    }
+
+    /**
+     * on activity result
+     *
+     * 结果回调
+     */
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == DATA_REQUEST_CODE && resultCode == RESULT_OK) {
+            val isDeleteData = data!!.getBooleanExtra("isDeleteData", false)
+            if(isDeleteData){
+                pageItemList = null
+                pageTmpList = null
+                binding.pageItemListView.adapter = null
+                loadingDialog = ProgressDialog.show(this@DataActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
+                LoadDataTask(1).execute()
+            }
+        }
     }
 
     override fun onDestroy() {

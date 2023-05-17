@@ -1,6 +1,7 @@
 package com.android.captureinterfacexposed.ui.activity
 
 import android.app.ProgressDialog
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.Environment
 import android.view.LayoutInflater
@@ -35,6 +36,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
     private val zipFileNames = mutableListOf<String>()
     private lateinit var appName: String
     private lateinit var pkgName: String
+    private var isDeleteData: Boolean = false
 
     override fun onCreate() {
         appName = intent.getStringExtra("app_name").toString()
@@ -91,6 +93,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             LoadDataTask(3).execute()
             binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+            isDeleteData = true
         }
         binding.btExportData.setOnClickListener {
             zipFileNames.clear()
@@ -405,6 +408,9 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
             pageCollectItemAdapter.notifyDataSetChanged()
         } else {
+            val resultIntent = Intent()
+            resultIntent.putExtra("isDeleteData", isDeleteData)
+            setResult(RESULT_OK, resultIntent)
             super.onBackPressed()
         }
     }
