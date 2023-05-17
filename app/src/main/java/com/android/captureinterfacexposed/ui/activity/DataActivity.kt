@@ -115,7 +115,10 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
         @Deprecated("Deprecated in Java")
         override fun doInBackground(vararg params: Void?): Void? {
             when(taskType){
-                1 -> processData()
+                1 -> {
+                    syncData()
+                    processData()
+                }
                 2 -> ZipUtils.zipFiles(zipFileNames, "$filePath1.zip")
             }
             return null
@@ -370,6 +373,94 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                     pageNum: $pageNum
                     """.trimIndent()
         }
+    }
+
+    /**
+     * synchronize data between database and local
+     *
+     * 同步数据
+     */
+    private fun syncData() {
+        val mDbHelper = PageDataHelper(applicationContext)
+        mDbHelper.clearDatabase()
+        var filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        when(newDirectory(filePath.toString(), applicationContext.resources.getString(R.string.collect_folder))){
+            true -> return
+            false -> {
+                filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.collect_folder))
+                val subdirectories = getSubdirectories(filePath.toString()) // appName subdirectories -> pkgName
+                if (subdirectories.isEmpty()) return
+                subdirectories.forEach { it1 -> // pkgName
+                    val filePath1 = File(filePath.toString() + File.separator + it1)
+                    val subdirectories1 = getSubdirectories(filePath1.toString()) // pkgName subdirectories -> collectTime
+                    if (subdirectories1.isEmpty()) return@forEach // pkgName/collectTime Empty -> return
+                    val pageNum = subdirectories1.size // pkgName/collectTime num -> pageNum
+                    val appName: String? = getAppNameByPkgName(it1)
+                    val pageId = mDbHelper.addPage(it1, appName, pageNum) // add a page
+                    subdirectories1.forEach{ it2 -> // CollectTime
+                        val filePath2 = File(filePath1.toString() + File.separator + it2)
+                        val pageCollectItems = getFileNames(filePath2.toString())
+                        val pageCollectNum = pageCollectItems.size / 3
+                        mDbHelper.addCollect(pageId,it2,pageCollectNum)
+                    }
+                }
+            }
+        }
+        mDbHelper.close()
+    }
+
+    /**
+     * new a directory
+     *
+     * 创建文件夹
+     */
+    private fun newDirectory(path: String, dirName: String):Boolean {
+        val file = File("$path/$dirName")
+        try {
+            if (!file.exists()) {
+                file.mkdirs()
+                return true
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
+
+    /**
+     * get sub directories
+     *
+     * 指定文件夹下一级目录的文件夹列表
+     */
+    private fun getSubdirectories(path: String): List<String> {
+        val dir = File(path)
+        return dir.listFiles { file -> file.isDirectory }?.map { file -> file.name } ?: emptyList()
+    }
+
+    /**
+     * get file name
+     *
+     * 指定目录下的文件名称
+     */
+    private fun getFileNames(path: String): List<String> {
+        val dir = File(path)
+        return dir.listFiles { file -> file.isFile }?.map { file -> file.name } ?: emptyList()
+    }
+
+    /**
+     * get app name by its packageName
+     *
+     * 获取应用名称
+     */
+    private fun getAppNameByPkgName(packageName: String): String? {
+        val packageManager: PackageManager = applicationContext.packageManager
+        try {
+            val appInfo = packageManager.getApplicationInfo(packageName, 0)
+            return packageManager.getApplicationLabel(appInfo).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     override fun onDestroy() {
