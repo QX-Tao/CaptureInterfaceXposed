@@ -71,6 +71,7 @@
     <string name="search_app">Search app</string>
     <string name="export_data">Export data</string>
     <string name="data_exported">Data exported</string>
+    <string name="data_deleted">Data deleted</string>
     <string name="data_loaded">Data loaded</string>
     <string name="select_num">%1$1s items selected</string>
     <string name="app_title">Selected: %1$1s</string>

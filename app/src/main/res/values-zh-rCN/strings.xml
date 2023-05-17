@@ -120,7 +120,7 @@
     <string name="follow_system">跟随系统</string>
     <string name="light">浅色</string>
     <string name="dark">深色</string>
-
+    <string name="data_deleted">已删除</string>
 
 
 </resources>

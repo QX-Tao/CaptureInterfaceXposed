@@ -75,19 +75,8 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             pageItemAdapter.notifyDataSetChanged()
         }
         binding.includeTitleBarOperate.ivCheckDelete.setOnClickListener {
-            val itemsToRemove = mutableListOf<Long>()
-            val itemsToRemovePkgName = mutableListOf<String>()
-            selectedItems.forEach {
-                itemsToRemove.add(pageItemList!![it].mid)
-                itemsToRemovePkgName.add(pageItemList!![it].packageName)
-            }
-            itemsToRemove.forEach { pageDataHelper.delPageAndCollectData(it) }
-            itemsToRemovePkgName.forEach{ delPageData(it) }
-            processData()
-            pageItemAdapter = PageItemListAdapter(pageItemList!!)
-            binding.pageItemListView.adapter = pageItemAdapter
-            selectedItems.clear()
-            isMultiSelectMode = false
+            loadingDialog = ProgressDialog.show(this@DataActivity,resources.getString(R.string.processing_title), resources.getString(R.string.processing_desc), true, false)
+            LoadDataTask(3).execute()
             binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
         }
@@ -120,6 +109,17 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                     processData()
                 }
                 2 -> ZipUtils.zipFiles(zipFileNames, "$filePath1.zip")
+                3 -> {
+                    val itemsToRemove = mutableListOf<Long>()
+                    val itemsToRemovePkgName = mutableListOf<String>()
+                    selectedItems.forEach {
+                        itemsToRemove.add(pageItemList!![it].mid)
+                        itemsToRemovePkgName.add(pageItemList!![it].packageName)
+                    }
+                    itemsToRemove.forEach { pageDataHelper.delPageAndCollectData(it) }
+                    itemsToRemovePkgName.forEach{ delPageData(it) }
+                    processData()
+                }
             }
             return null
         }
@@ -139,6 +139,14 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
                     binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
                     binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
                     pageItemAdapter.notifyDataSetChanged()
+                }
+                3 -> {
+                    pageItemAdapter = PageItemListAdapter(pageItemList!!)
+                    binding.pageItemListView.adapter = pageItemAdapter
+                    loadingDialog.dismiss() // 关闭进度条
+                    Toast.makeText(applicationContext,resources.getString(R.string.data_deleted),Toast.LENGTH_SHORT).show()
+                    selectedItems.clear()
+                    isMultiSelectMode = false
                 }
             }
         }

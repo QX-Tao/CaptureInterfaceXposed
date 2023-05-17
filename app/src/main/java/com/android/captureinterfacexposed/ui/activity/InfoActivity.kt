@@ -1,8 +1,6 @@
 package com.android.captureinterfacexposed.ui.activity
 
 import android.app.ProgressDialog
-import android.content.Context
-import android.content.Intent
 import android.os.AsyncTask
 import android.os.Environment
 import android.view.LayoutInflater
@@ -14,7 +12,6 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityInfoBinding
 import com.android.captureinterfacexposed.db.PageDataHelper
@@ -36,10 +33,12 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
     private lateinit var pageCollectItemAdapter: PageCollectItemListAdapter
     private lateinit var filePath1: File
     private val zipFileNames = mutableListOf<String>()
+    private lateinit var appName: String
+    private lateinit var pkgName: String
 
     override fun onCreate() {
-        val appName = intent.getStringExtra("app_name")
-        val pkgName = intent.getStringExtra("package_name")
+        appName = intent.getStringExtra("app_name").toString()
+        pkgName = intent.getStringExtra("package_name").toString()
         mid = intent.getLongExtra("mid",-1)
 
         val tmp1 = resources.getString(R.string.app_infos)
@@ -88,30 +87,8 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             pageCollectItemAdapter.notifyDataSetChanged()
         }
         binding.includeTitleBarOperate.ivCheckDelete.setOnClickListener {
-            val itemsToRemove = mutableListOf<String?>()
-            selectedItems.forEach {
-                itemsToRemove.add(pageCollectItemList!![it].pageCollectData)
-            }
-            itemsToRemove.forEach {
-                pageDataHelper.deleteCollectRow(mid,it)
-                pageDataHelper.decrementPageNumById(mid)
-                if (pkgName != null) {
-                    if (it != null) {
-                        delPageCollectData(pkgName, it)
-                    }
-                }
-            }
-            if(pageDataHelper.getPageNumById(mid) == 0) {
-                pageDataHelper.delPageAndCollectData(mid)
-                if (pkgName != null) {
-                    delPageData(pkgName)
-                }
-            }
-            processData()
-            pageCollectItemAdapter = PageCollectItemListAdapter(pageCollectItemList!!)
-            binding.collectItemListView.adapter = pageCollectItemAdapter
-            selectedItems.clear()
-            isMultiSelectMode = false
+            loadingDialog = ProgressDialog.show(this@InfoActivity,resources.getString(R.string.processing_title), resources.getString(R.string.processing_desc), true, false)
+            LoadDataTask(3).execute()
             binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
         }
@@ -141,6 +118,28 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             when(taskType){
                 1 -> processData()
                 2 -> ZipUtils.zipFiles(zipFileNames, "$filePath1.zip")
+                3 -> {
+                    val itemsToRemove = mutableListOf<String?>()
+                    selectedItems.forEach {
+                        itemsToRemove.add(pageCollectItemList!![it].pageCollectData)
+                    }
+                    itemsToRemove.forEach {
+                        pageDataHelper.deleteCollectRow(mid,it)
+                        pageDataHelper.decrementPageNumById(mid)
+                        if (pkgName.isNotBlank()) {
+                            if (it != null) {
+                                delPageCollectData(pkgName, it)
+                            }
+                        }
+                    }
+                    if(pageDataHelper.getPageNumById(mid) == 0) {
+                        pageDataHelper.delPageAndCollectData(mid)
+                        if (pkgName.isNotBlank()) {
+                            delPageData(pkgName)
+                        }
+                    }
+                    processData()
+                }
             }
             return null
         }
@@ -160,6 +159,14 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                     binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
                     binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
                     pageCollectItemAdapter.notifyDataSetChanged()
+                }
+                3 -> {
+                    pageCollectItemAdapter = PageCollectItemListAdapter(pageCollectItemList!!)
+                    binding.collectItemListView.adapter = pageCollectItemAdapter
+                    loadingDialog.dismiss() // 关闭进度条
+                    Toast.makeText(applicationContext,resources.getString(R.string.data_deleted),Toast.LENGTH_SHORT).show()
+                    selectedItems.clear()
+                    isMultiSelectMode = false
                 }
             }
         }
