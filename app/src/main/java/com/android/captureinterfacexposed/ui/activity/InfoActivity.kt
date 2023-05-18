@@ -28,6 +28,8 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
         private var mid by Delegates.notNull<Long>()
         private var pageCollectItemList: List<PageCollectItem>? = null
         private var pageTmpCollectList: List<PageDataHelper.PageCollect>? = null
+        @JvmStatic
+        private val INFO_REQUEST_CODE = 100
     }
     private var selectedItems = mutableSetOf<Int>()
     private var isMultiSelectMode = false
@@ -234,6 +236,15 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             view?.setOnClickListener {
                 if (isMultiSelectMode){
                     enterMultiSelectMode(position)
+                } else {
+                    val pageCollectNum = Companion.pageCollectItemList?.get(position)?.pageCollectNum
+                    val pageCollectData = Companion.pageCollectItemList?.get(position)?.pageCollectData
+                    val intent = Intent(applicationContext,DetailActivity::class.java)
+                    intent.putExtra("mid",mid)
+                    intent.putExtra("page_collect_num", pageCollectNum)
+                    intent.putExtra("page_collect_data", pageCollectData)
+                    intent.putExtra("pkgName",pkgName)
+                    startActivityForResult(intent, INFO_REQUEST_CODE)
                 }
             }
             // 如果处于多选状态，则根据选中状态设置背景颜色
@@ -391,6 +402,27 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                     pageCollectData: $pageCollectData
                     pageCollectNum: $pageCollectNum
                     """.trimIndent()
+        }
+    }
+
+    /**
+     * on activity result
+     *
+     * 结果回调
+     */
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == INFO_REQUEST_CODE && resultCode == RESULT_OK) {
+            val isDeleteData1 = data!!.getBooleanExtra("isDeleteData", false)
+            if(isDeleteData1){
+                pageCollectItemList = null
+                pageTmpCollectList = null
+                binding.collectItemListView.adapter = null
+                loadingDialog = ProgressDialog.show(this@InfoActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
+                LoadDataTask(1).execute()
+                isDeleteData = true
+            }
         }
     }
 

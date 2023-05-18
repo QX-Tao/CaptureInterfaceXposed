@@ -20,10 +20,6 @@ import com.blankj.utilcode.util.LanguageUtils
 import java.util.*
 
 abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
-
-    private val THEME_MODE = "theme_key";
-    private val LANGUAGE_MODE = "language_key";
-
     /**
      * Get the binding layout object
      *

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorThemeBackground"
+    android:orientation="vertical"
+    tools:context=".ui.activity.DetailActivity">
+
+    <include
+        android:id="@+id/include_title_bar_second"
+        layout="@layout/include_title_bar_second"/>
+
+    <include
+        android:visibility="gone"
+        android:id="@+id/include_title_bar_operate"
+        layout="@layout/include_title_bar_operate"/>
+
+    <ListView
+        android:id="@+id/detail_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>

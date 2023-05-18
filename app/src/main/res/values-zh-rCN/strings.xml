@@ -121,6 +121,9 @@
     <string name="light">浅色</string>
     <string name="dark">深色</string>
     <string name="data_deleted">已删除</string>
+    <string name="accessibility_collects">无障碍收集:  %1$1s</string>
+    <string name="sdk_collects">SDK收集:  %1$1s</string>
+    <string name="collect_detail">收集详情</string>
 
 
 </resources>

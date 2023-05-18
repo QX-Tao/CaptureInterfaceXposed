@@ -121,4 +121,7 @@
     <string name="search_app">搜索應用</string>
     <string name="export_data">導出數據</string>
     <string name="data_deleted">已刪除</string>
+    <string name="accessibility_collects">無障礙收集:  %1$1s</string>
+    <string name="sdk_collects">SDK收集:  %1$1s</string>
+    <string name="collect_detail">收集詳情</string>
 </resources>

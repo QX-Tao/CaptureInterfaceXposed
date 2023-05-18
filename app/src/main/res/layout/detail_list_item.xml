@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/rl_data_list"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/iv_screen"
+        android:layout_width="100dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="12dp"
+        android:orientation="vertical"
+        android:layout_toEndOf="@id/iv_screen"
+        android:layout_centerVertical="true">
+
+        <RelativeLayout
+            android:id="@+id/rl_accessibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/accessibility_desc_text_view"
+                android:layout_width="wrap_content"
+                android:text="@string/accessibility_collects"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/secondTextColor"
+                android:layout_alignParentStart="true"/>
+
+            <TextView
+                android:id="@+id/accessibility_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/firstTextColor"
+                android:textSize="15sp"
+                android:lines="4"
+                android:ellipsize="end"
+                android:layout_below="@id/accessibility_desc_text_view"
+                android:layout_alignStart="@id/accessibility_desc_text_view"
+                android:layout_marginTop="2dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_sdk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/sdk_desc_text_view"
+                android:layout_width="wrap_content"
+                android:text="@string/sdk_collects"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/secondTextColor"
+                android:layout_alignParentStart="true"/>
+
+            <TextView
+                android:id="@+id/sdk_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/firstTextColor"
+                android:textSize="15sp"
+                android:lines="4"
+                android:ellipsize="end"
+                android:layout_below="@id/sdk_desc_text_view"
+                android:layout_alignStart="@id/sdk_desc_text_view"
+                android:layout_marginTop="2dp"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

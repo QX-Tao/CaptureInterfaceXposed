@@ -249,6 +249,16 @@ public class PageDataHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // update pageNum by given a pageId
+    public void updatePageCollectNumByIdAndData(long pageId, String collectData, int pageCollectNum) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_COLLECT_PAGE_COLLECT_NUM, pageCollectNum);
+        String selection = COLUMN_COLLECT_ID + " = ? AND " + COLUMN_COLLECT_PAGE_COLLECT_DATA + " = ?";
+        String[] selectionArgs = { String.valueOf(pageId), collectData };
+        db.update(TABLE_COLLECT, values, selection, selectionArgs);
+        db.close();
+    }
 
     // Get the page collect number by its ID (mid) and collect data
     public int getPageCollectNumByIdAndData(long pageId, String collectData) {
