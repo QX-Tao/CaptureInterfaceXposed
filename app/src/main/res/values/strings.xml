@@ -16,6 +16,8 @@
     <string name="use_lsp">Inject by LSP</string>
     <string name="use_lsp_summary_on">Switch on to use LSP inject mode</string>
     <string name="use_lsp_summary_off">Switch off to use normal mode, and requires manual piling</string>
+    <string name="use_cmd">Use CMD</string>
+    <string name="use_cmd_summary">Use cmd to simplify operations, such as obtaining runtime permissions</string>
     <string name="settings">Setting</string>
     <string name="collect_result">Collect result</string>
     <string name="collect_detail">Collect detail</string>
@@ -50,6 +52,8 @@
     <string name="failure_allow_accessibility_service">The accessibility service open failure</string>
     <string name="success_allow_PROJECT_MEDIA_permission">The PROJECT_MEDIA permission opened</string>
     <string name="failure_allow_PROJECT_MEDIA_permission">The PROJECT_MEDIA permission open failure</string>
+    <string name="success_allow_ALLFILE_MANAGE_permission">The ALLFILE_MANAGE permission opened</string>
+    <string name="failure_allow_ALLFILE_MANAGE_permission">The ALLFILE_MANAGE permission open failure</string>
     <string name="enable_module_LSP_scope">The LSP scope is enabled</string>
     <string name="enable_hook_by_LSP">Success hook by LSP</string>
     <string name="success_screen">Success screen capture</string>

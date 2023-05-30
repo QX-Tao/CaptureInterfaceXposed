@@ -8,7 +8,16 @@
             app:enabled="true"
             app:summaryOn="@string/use_lsp_summary_off"
             app:summaryOff="@string/use_lsp_summary_on"
-            app:title="@string/use_lsp" />
+            app:title="@string/use_lsp" >
+        </SwitchPreferenceCompat>
+
+        <SwitchPreferenceCompat
+            android:dependency="lsp_hook"
+            app:key="use_cmd"
+            app:enabled="true"
+            app:title="@string/use_cmd"
+            app:summary="@string/use_cmd_summary">
+        </SwitchPreferenceCompat>
 
     </PreferenceCategory>
 

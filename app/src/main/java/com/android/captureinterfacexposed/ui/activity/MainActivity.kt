@@ -41,6 +41,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         @JvmStatic
         private val WORK_MODE = "work_mode"
         @JvmStatic
+        private val USE_CMD = "use_cmd"
+        @JvmStatic
         private val REQUEST_PERMISSIONS_CODE = 123
         @JvmStatic
         private val SCREENSHOT_REQUEST_CODE = 100
@@ -342,6 +344,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 if (DefaultApplication.isDeviceRooted()) {
                     ShareUtil.putBoolean(applicationContext,LSP_HOOK,true)
                     ShareUtil.putBoolean(applicationContext,WORK_MODE,true)
+                    ShareUtil.putBoolean(applicationContext, USE_CMD,true)
                     DefaultApplication.enableLSP(packageName)
                 } else {
                     alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).visibility = View.GONE
@@ -440,6 +443,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             .setView(dialogView)
             .setCancelable(false)
             .create()
+        if(ShareUtil.getBoolean(applicationContext, LSP_HOOK,false)) {
+            if (ShareUtil.getBoolean(applicationContext, USE_CMD, false)) {
+                DefaultApplication.allowPermissionPROJECTMEDIA(packageName)
+                DefaultApplication.allowPermissionSYSTEMALERTWINDOW(packageName)
+                DefaultApplication.allowPermissionALLFILEMANAGE(packageName)
+                DefaultApplication.enableAccessibilityService(
+                    packageName,
+                    CaptureInterfaceAccessibilityService::class.java.canonicalName!!
+                )
+            }
+        }
         if(refreshPermissionStatus().contentEquals(intArrayOf(1, 1, 1, 1))) return
         else dialog.show()
         val storageLinearLayout = dialogView.findViewById<LinearLayout>(R.id.ll_storage_permission)

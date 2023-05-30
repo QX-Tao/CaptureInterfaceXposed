@@ -4,7 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.android.captureinterfacexposed.application.DefaultApplication;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -81,12 +84,17 @@ public class CollectDataUtil {
         accessRaf.write(accessibleJson.getBytes());
         accessRaf.close();
 
-        SaveImageUtil.saveAlbum(context, screenPng, Bitmap.CompressFormat.PNG, 100, true, "Screen");
+        if(isUseCmdGetScreen()) {
+            String screenName = "Screen(" + CurrentCollectUtil.getInterfaceNum() + ").png";
+            DefaultApplication.getScreen(CurrentCollectUtil.getCollectFilePath() + File.separator + screenName);
+        } else {
+            SaveImageUtil.saveAlbum(context, screenPng, Bitmap.CompressFormat.PNG, 100, true, "Screen");
+        }
     }
 
-    public void saveToDatabase(){
-
+    private boolean isUseCmdGetScreen(){
+        return ShareUtil.getBoolean(context.getApplicationContext(), "use_cmd", false) &&
+                ShareUtil.getBoolean(context.getApplicationContext(),"lsp_hook",false);
     }
-
 }
 

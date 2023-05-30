@@ -134,6 +134,15 @@ class DefaultApplication : ModuleApplication() {
             }
         }
         @JvmStatic
+        fun allowPermissionALLFILEMANAGE(packageName: String) {
+            val cmd = "appops set $packageName MANAGE_EXTERNAL_STORAGE allow"
+            if (ShellUtils.execCmd(cmd, true).result == 0) {
+                Toast.makeText(appContext, appContext.resources.getString(R.string.success_allow_ALLFILE_MANAGE_permission), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(appContext, appContext.resources.getString(R.string.failure_allow_ALLFILE_MANAGE_permission), Toast.LENGTH_SHORT).show()
+            }
+        }
+        @JvmStatic
         fun enableLSP(packageName: String) {
             val cmd = "/data/adb/lspd/bin/cli scope set -a $packageName android/0"
             ShellUtils.execCmd(cmd, true) // 指令有时会抽风，需要运行两次。
@@ -152,27 +161,22 @@ class DefaultApplication : ModuleApplication() {
         }
         @JvmStatic
         fun getScreen(filePath: String) {
-            val cmd = "screencap -p$filePath"
-            if (ShellUtils.execCmd(cmd, true).result == 0) {
-                Toast.makeText(appContext, appContext.resources.getString(R.string.success_screen), Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(appContext, appContext.resources.getString(R.string.failure_screen), Toast.LENGTH_SHORT).show()
-            }
+            val cmd = "screencap -p \"$filePath\""
+            ShellUtils.execCmd(cmd, true)
+//            if (ShellUtils.execCmd(cmd, true).result == 0) {
+//                Toast.makeText(appContext, appContext.resources.getString(R.string.success_screen), Toast.LENGTH_SHORT).show()
+//            } else {
+//                Toast.makeText(appContext, appContext.resources.getString(R.string.failure_screen), Toast.LENGTH_SHORT).show()
+//            }
         }
         @JvmStatic
         fun mkDir(path: String) {
-            Thread {
-                try {
-                    val cmd = "mkdir -p $path"
-                    if (ShellUtils.execCmd(cmd, true).result == 0) {
-                        Toast.makeText(appContext, appContext.resources.getString(R.string.success_mkdir), Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(appContext, appContext.resources.getString(R.string.failure_mkdir), Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }.start()
+            val cmd = "mkdir -p \"$path\""
+            if (ShellUtils.execCmd(cmd, true).result == 0) {
+                Toast.makeText(appContext, appContext.resources.getString(R.string.success_mkdir), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(appContext, appContext.resources.getString(R.string.failure_mkdir), Toast.LENGTH_SHORT).show()
+            }
         }
         @JvmStatic
         fun reboot() {

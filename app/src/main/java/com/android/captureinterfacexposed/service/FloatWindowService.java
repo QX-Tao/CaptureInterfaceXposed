@@ -54,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 public class FloatWindowService {
     private static final int SCREENSHOT_REQUEST_CODE = 100; // 截图请求码
     private static final String LSP_HOOK = "lsp_hook";
+    private static final String USE_CMD = "use_cmd";
     private static final String APPLICATION_PACKAGE_NAME = "com.android.captureinterfacexposed";
     private static final String SCREEN_SHOT_TAG = "screenShot";
     private static final String DUMP_VIEW_TREE_TAG = "dumpViewTree";
@@ -116,9 +117,11 @@ public class FloatWindowService {
         iv_second.setOnLongClickListener(floatingViewLongClickListener);
 
         // 5. 实例化MediaProjectionManager,开启截屏意图
-        MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) context.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        Intent screenCaptureIntent = mediaProjectionManager.createScreenCaptureIntent();
-        ((Activity) context).startActivityForResult(screenCaptureIntent, SCREENSHOT_REQUEST_CODE);
+        if(!isUseCmdGetScreen()) {
+            MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) context.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            Intent screenCaptureIntent = mediaProjectionManager.createScreenCaptureIntent();
+            ((Activity) context).startActivityForResult(screenCaptureIntent, SCREENSHOT_REQUEST_CODE);
+        }
 
         // 6. 将 View 添加到 window 中
         windowManager.addView(floatingView, floatingViewLayoutParams);
@@ -214,17 +217,24 @@ public class FloatWindowService {
             if(CurrentCollectUtil.isRightButtonClickable()){
                 CollectDataUtil collectDataUtil = CollectDataUtil.getInstance(context.getApplicationContext());
                 collectDataUtil.initCollectData();
-                CountDownLatch countDownLatch = new CountDownLatch(3);
                 // 隐藏按钮
                 floatingView.setVisibility(View.INVISIBLE);
-                Executor executor = Executors.newFixedThreadPool(4); // 使用单独的线程池，以避免阻塞主UI线程
-                executor.execute(() -> {
-                    boolean end = ChannelFactory.getEndScreenShot().receive();
-                    if (end) {
-                        Log.d(SCREEN_SHOT_TAG, "receive end screenshot");
-                        countDownLatch.countDown();
-                    }
-                });
+                CountDownLatch countDownLatch;
+                Executor executor;
+                if(isUseCmdGetScreen()) {
+                    countDownLatch = new CountDownLatch(2);
+                    executor = Executors.newFixedThreadPool(3);
+                } else {
+                    countDownLatch = new CountDownLatch(3);
+                    executor = Executors.newFixedThreadPool(4);
+                    executor.execute(() -> {
+                        boolean end = ChannelFactory.getEndScreenShot().receive();
+                        if (end) {
+                            Log.d(SCREEN_SHOT_TAG, "receive end screenshot");
+                            countDownLatch.countDown();
+                        }
+                    });
+                }
                 executor.execute(() -> {
                     boolean end = ChannelFactory.getEndDumpViewTree().receive();
                     if (end) {
@@ -278,14 +288,14 @@ public class FloatWindowService {
                     }
                 });
 
-
-                Log.d(SCREEN_SHOT_TAG, "send start screenshot");
-                // 通知开启截屏
-                ChannelFactory.getStartScreenShot().send(true);
+                if(!isUseCmdGetScreen()){
+                    Log.d(SCREEN_SHOT_TAG, "send start screenshot");
+                    // 通知开启截屏
+                    ChannelFactory.getStartScreenShot().send(true);
+                }
                 // 通知无障碍收集控件树
                 Log.d(DUMP_VIEW_TREE_TAG, "send start dumpViewTree");
                 ChannelFactory.getStartDumpViewTree().send(true);
-
 
                 Thread thread1 = new Thread(() -> {
                     try {
@@ -677,6 +687,10 @@ public class FloatWindowService {
                 return 0;
         else
             return -1;
+    }
+
+    private boolean isUseCmdGetScreen(){
+        return ShareUtil.getBoolean(context.getApplicationContext(), USE_CMD, false) && getWorkModeStatus() == 1;
     }
 
     public void processData(){
