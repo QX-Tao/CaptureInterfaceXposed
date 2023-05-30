@@ -24,19 +24,17 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.android.captureinterfacexposed.R;
 import com.android.captureinterfacexposed.application.DefaultApplication;
-import com.android.captureinterfacexposed.utils.ConfigUtil;
-import com.android.captureinterfacexposed.utils.ShareUtil;
-import com.android.captureinterfacexposed.utils.factory.ChannelFactory;
 import com.android.captureinterfacexposed.db.PageDataHelper;
 import com.android.captureinterfacexposed.socket.ClientSocket;
 import com.android.captureinterfacexposed.utils.CollectDataUtil;
 import com.android.captureinterfacexposed.utils.CurrentCollectUtil;
+import com.android.captureinterfacexposed.utils.ShareUtil;
+import com.android.captureinterfacexposed.utils.factory.ChannelFactory;
 import com.highcapable.yukihookapi.YukiHookAPI;
 
 import java.io.File;
@@ -199,17 +197,15 @@ public class FloatWindowService {
     View.OnClickListener floatingViewClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
-                case R.id.iv_first:
-                    CurrentCollectUtil.setInterfaceNum(1);
-                    CurrentCollectUtil.setRightButtonClickable(true);
-                    isClick = 0;
-                    break;
-                case R.id.iv_second:
-                    int tgNum = CurrentCollectUtil.getInterfaceNum() + 1;
-                    CurrentCollectUtil.setInterfaceNum(tgNum);
-                    isClick = 1;
-                    break;
+            int id = v.getId();
+            if(id == R.id.iv_first){
+                CurrentCollectUtil.setInterfaceNum(1);
+                CurrentCollectUtil.setRightButtonClickable(true);
+                isClick = 0;
+            } else if (id == R.id.iv_second){
+                int tgNum = CurrentCollectUtil.getInterfaceNum() + 1;
+                CurrentCollectUtil.setInterfaceNum(tgNum);
+                isClick = 1;
             }
             if(!CurrentCollectUtil.isLeftButtonClickable()){
                 return;
@@ -311,40 +307,37 @@ public class FloatWindowService {
     };
 
     View.OnClickListener floatListViewClickListener = v -> {
-        switch (v.getId()){
-            case R.id.bt_refresh:
-                String tv_location = getAppNameByPkgName(CurrentCollectUtil.getCollectPackageName()) + " (" + CurrentCollectUtil.getCollectPackageName() + ")";
-                TextView tv_current_location = floatListView.findViewById(R.id.tv_current_location);
-                tv_current_location.setText(tv_location);
-                long pageId = mDbHelper.getPageIdByPkgName(CurrentCollectUtil.getCollectPackageName());
-                pageTmpCollectList = mDbHelper.getPageCollectsByMid(pageId);
-                pageCollectItemList = getPageCollectItemList(pageTmpCollectList);
-                lv_select_location = floatListView.findViewById(R.id.select_location_list_view);
-                PageCollectItemListAdapter pageCollectItemAdapter = new PageCollectItemListAdapter(pageCollectItemList);
-                lv_select_location.setAdapter(pageCollectItemAdapter);
-                isDisplayPageItemList = false;
-                updateFloatListView();
-                break;
-            case R.id.bt_switch_app:
-                pageItemList = new ArrayList<>();
-                for (ApplicationInfo app: appList) {
-                    String packageName = app.packageName;
-                    String appName = getAppNameByPkgName(packageName);
-                    String pageNum = "0";
-                    long tmpPageId = mDbHelper.getPageIdByPkgName(packageName);
-                    if(tmpPageId != -1) pageNum = String.valueOf(mDbHelper.getPageNumById(tmpPageId));
-                    Drawable appIcon = getIconByPkgName(packageName);
-                    PageItem pageItem = new PageItem(appName,packageName,pageNum,appIcon);
-                    pageItemList.add(pageItem);
-                }
-                PageItemListAdapter pageItemListAdapter = new PageItemListAdapter(pageItemList);
-                lv_select_location.setAdapter(pageItemListAdapter);
-                isDisplayPageItemList = true;
-                updateFloatListView();
-                break;
-            case R.id.bt_close:
-                stopFloatListView();
-                break;
+        int id = v.getId();
+        if(id == R.id.bt_refresh){
+            String tv_location = getAppNameByPkgName(CurrentCollectUtil.getCollectPackageName()) + " (" + CurrentCollectUtil.getCollectPackageName() + ")";
+            TextView tv_current_location = floatListView.findViewById(R.id.tv_current_location);
+            tv_current_location.setText(tv_location);
+            long pageId = mDbHelper.getPageIdByPkgName(CurrentCollectUtil.getCollectPackageName());
+            pageTmpCollectList = mDbHelper.getPageCollectsByMid(pageId);
+            pageCollectItemList = getPageCollectItemList(pageTmpCollectList);
+            lv_select_location = floatListView.findViewById(R.id.select_location_list_view);
+            PageCollectItemListAdapter pageCollectItemAdapter = new PageCollectItemListAdapter(pageCollectItemList);
+            lv_select_location.setAdapter(pageCollectItemAdapter);
+            isDisplayPageItemList = false;
+            updateFloatListView();
+        } else if(id == R.id.bt_switch_app){
+            pageItemList = new ArrayList<>();
+            for (ApplicationInfo app: appList) {
+                String packageName = app.packageName;
+                String appName = getAppNameByPkgName(packageName);
+                String pageNum = "0";
+                long tmpPageId = mDbHelper.getPageIdByPkgName(packageName);
+                if(tmpPageId != -1) pageNum = String.valueOf(mDbHelper.getPageNumById(tmpPageId));
+                Drawable appIcon = getIconByPkgName(packageName);
+                PageItem pageItem = new PageItem(appName,packageName,pageNum,appIcon);
+                pageItemList.add(pageItem);
+            }
+            PageItemListAdapter pageItemListAdapter = new PageItemListAdapter(pageItemList);
+            lv_select_location.setAdapter(pageItemListAdapter);
+            isDisplayPageItemList = true;
+            updateFloatListView();
+        } else if(id == R.id.bt_close){
+            stopFloatListView();
         }
     };
 
@@ -372,6 +365,8 @@ public class FloatWindowService {
             String pageCollectNum = pageCollectItemList.get(position).pageCollectNum;
             CurrentCollectUtil.setCollectTime(pageCollectData);
             CurrentCollectUtil.setInterfaceNum(Integer.parseInt(pageCollectNum));
+            String clickFilePath = filePath + File.separator + CurrentCollectUtil.getCollectPackageName(); // 包名
+            CurrentCollectUtil.setCollectFilePath(clickFilePath + File.separator  + pageCollectData);
             CurrentCollectUtil.setRightButtonClickable(true);
             stopFloatListView();
         }
@@ -379,7 +374,6 @@ public class FloatWindowService {
 
     /**
      * new a directory
-     *
      * 创建文件夹
      */
     public void newDirectory(String _path, String dirName) {
@@ -395,7 +389,6 @@ public class FloatWindowService {
 
     /**
      * get app name by its packageName
-     *
      * 获取应用名称
      */
     private String getAppNameByPkgName(String packageName) {
@@ -411,7 +404,6 @@ public class FloatWindowService {
 
     /**
      * get app icon by its packageName
-     *
      * 获取应用图标
      */
     private Drawable getIconByPkgName(String packageName) {
@@ -427,7 +419,6 @@ public class FloatWindowService {
 
     /**
      * touch listener
-     *
      * 触摸监听器
      */
     private class ItemViewTouchListener implements View.OnTouchListener {
@@ -447,6 +438,7 @@ public class FloatWindowService {
                 case MotionEvent.ACTION_DOWN:
                     break;
                 case MotionEvent.ACTION_MOVE:
+                    v.performClick();
                     if (lastX == 0.0f || lastY == 0.0f) {
                         lastX = event.getRawX();
                         lastY = event.getRawY();
@@ -486,7 +478,6 @@ public class FloatWindowService {
 
     /**
      * page collect item class
-     *
      * pageCollectItem类
      */
     private static class PageCollectItem{
@@ -505,7 +496,6 @@ public class FloatWindowService {
 
     /**
      * get pageCollectItemList
-     *
      * 获取pageCollectItemList
      */
     private List<PageCollectItem> getPageCollectItemList(List<PageDataHelper.PageCollect> pageCollects){
@@ -521,7 +511,6 @@ public class FloatWindowService {
 
     /**
      * page collect item list adapter
-     *
      * 列表适配器
      */
     private class PageCollectItemListAdapter extends BaseAdapter {
@@ -576,7 +565,6 @@ public class FloatWindowService {
 
     /**
      * page item class
-     *
      * pageItem类
      */
     private static class PageItem{
@@ -599,7 +587,6 @@ public class FloatWindowService {
 
     /**
      * page item list adapter
-     *
      * 列表适配器
      */
     private class PageItemListAdapter extends BaseAdapter {
@@ -653,7 +640,6 @@ public class FloatWindowService {
 
     /**
      * update float list view
-     *
      * 刷新浮窗
      */
     private void updateFloatListView(){
@@ -675,7 +661,6 @@ public class FloatWindowService {
 
     /**
      * check work mode: normal -> -1, lsp_off -> 0, lsp_on -> 1
-     *
      * 返回运行模式：普通、LSP（未激活）、LSP（已激活）
      */
     private int getWorkModeStatus(){
