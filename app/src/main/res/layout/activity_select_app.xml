@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,19 +6,33 @@
     android:orientation="vertical"
     tools:context=".ui.activity.SelectAppActivity">
 
-    <include
-        android:id="@+id/include_title_bar_second"
-        layout="@layout/include_title_bar_second"/>
-
-    <SearchView
-        android:id="@+id/search_view"
-        android:queryHint="@string/search_app"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
 
-    <ListView
-        android:id="@+id/app_list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <include
+            android:id="@+id/include_title_bar_second"
+            layout="@layout/include_title_bar_second"/>
 
-</LinearLayout>
+        <SearchView
+            android:id="@+id/search_view"
+            android:queryHint="@string/search_app"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <ListView
+            android:id="@+id/app_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
+</RelativeLayout>
