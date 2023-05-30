@@ -3,6 +3,7 @@ package com.android.captureinterfacexposed.hook
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import android.webkit.WebView
 import android.widget.Toast
 import com.android.captureinterfacexposed.BuildConfig
 import com.highcapable.yukihookapi.annotation.xposed.InjectYukiHookWithXposed
@@ -54,10 +55,15 @@ class HookEntry : IYukiHookXposedInit {
                             Activity::class.java, "onCreate",
                             Bundle::class.java, object : XC_MethodHook() {
                                 override fun afterHookedMethod(param: MethodHookParam) {
-                                    // val activity = param.thisObject as Activity
-                                    // Toast.makeText(activity, "Target app hook.", Toast.LENGTH_SHORT).show();
-                                    // Log.i("UIHierarchyHook", "onCreate called")
                                     Automation.enable(1)
+                                    super.afterHookedMethod(param)
+                                }
+                            })
+                        XposedHelpers.findAndHookMethod(
+                            "android.webkit.WebView", lpparam.classLoader, "<init>",
+                            String::class.java, object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    val name: String = param.args[0] as String
                                     super.afterHookedMethod(param)
                                 }
                             })

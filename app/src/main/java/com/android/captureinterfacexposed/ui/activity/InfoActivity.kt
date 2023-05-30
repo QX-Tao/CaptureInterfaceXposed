@@ -1,8 +1,6 @@
 package com.android.captureinterfacexposed.ui.activity
 
-import android.app.ProgressDialog
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Environment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -13,18 +11,22 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.lifecycleScope
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityInfoBinding
 import com.android.captureinterfacexposed.db.PageDataHelper
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
 import com.blankj.utilcode.util.ZipUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.properties.Delegates
 
 class InfoActivity : BaseActivity<ActivityInfoBinding>(){
     companion object{
         private lateinit var pageDataHelper: PageDataHelper
-        private lateinit var loadingDialog: ProgressDialog
         private var mid by Delegates.notNull<Long>()
         private var pageCollectItemList: List<PageCollectItem>? = null
         private var pageTmpCollectList: List<PageDataHelper.PageCollect>? = null
@@ -33,6 +35,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
     }
     private var selectedItems = mutableSetOf<Int>()
     private var isMultiSelectMode = false
+    private var isProcessBarStatus = false
     private lateinit var pageCollectItemAdapter: PageCollectItemListAdapter
     private lateinit var filePath1: File
     private val zipFileNames = mutableListOf<String>()
@@ -47,12 +50,12 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
 
         val tmp1 = resources.getString(R.string.app_infos)
         binding.includeTitleBarSecond.tvTitle.text = String.format(tmp1,appName,pkgName)
-        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { onBackPressed() }
+        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { finish() }
         binding.includeTitleBarSecond.ivMoreButton.setOnClickListener { showPopupMenu(binding.includeTitleBarSecond.ivMoreButton) }
 
         pageDataHelper = PageDataHelper(this)
-        loadingDialog = ProgressDialog.show(this@InfoActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
-        LoadDataTask(1).execute()
+        lifecycleScope.launch { loadData() }
+
 
         binding.includeTitleBarOperate.ivBackButton.setOnClickListener {
             selectedItems.clear()
@@ -91,8 +94,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             pageCollectItemAdapter.notifyDataSetChanged()
         }
         binding.includeTitleBarOperate.ivCheckDelete.setOnClickListener {
-            loadingDialog = ProgressDialog.show(this@InfoActivity,resources.getString(R.string.processing_title), resources.getString(R.string.processing_desc), true, false)
-            LoadDataTask(3).execute()
+            lifecycleScope.launch { delData() }
             binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
             isDeleteData = true
@@ -112,72 +114,31 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                     zipFileNames.add(filePath1.toString() + File.separator + zipTmpFileName)
                 }
             }
-            loadingDialog = ProgressDialog.show(this@InfoActivity,resources.getString(R.string.processing_title), resources.getString(R.string.processing_desc), true, false)
-            LoadDataTask(2).execute()
+            lifecycleScope.launch { exportData() }
         }
-    }
-
-    private inner class LoadDataTask(private val taskType: Int) : AsyncTask<Void?, Void?, Void?>() {
-        @Deprecated("Deprecated in Java")
-        override fun doInBackground(vararg params: Void?): Void? {
-            when(taskType){
-                1 -> processData()
-                2 -> ZipUtils.zipFiles(zipFileNames, "$filePath1.zip")
-                3 -> {
-                    val itemsToRemove = mutableListOf<String?>()
-                    selectedItems.forEach {
-                        itemsToRemove.add(pageCollectItemList!![it].pageCollectData)
-                    }
-                    itemsToRemove.forEach {
-                        pageDataHelper.deleteCollectRow(mid,it)
-                        pageDataHelper.decrementPageNumById(mid)
-                        if (pkgName.isNotBlank()) {
-                            if (it != null) {
-                                delPageCollectData(pkgName, it)
-                            }
+        onBackPressedDispatcher.addCallback(
+            this, // lifecycle owner
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (!isProcessBarStatus) {
+                        if(isMultiSelectMode){
+                            selectedItems.clear()
+                            isMultiSelectMode = false
+                            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+                            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+                            pageCollectItemAdapter.notifyDataSetChanged()
+                        } else {
+                            val resultIntent = Intent()
+                            resultIntent.putExtra("isDeleteData", isDeleteData)
+                            setResult(RESULT_OK, resultIntent)
+                            finish()
                         }
                     }
-                    if(pageDataHelper.getPageNumById(mid) == 0) {
-                        pageDataHelper.delPageAndCollectData(mid)
-                        if (pkgName.isNotBlank()) {
-                            delPageData(pkgName)
-                        }
-                    }
-                    processData()
                 }
-            }
-            return null
-        }
-        @Deprecated("Deprecated in Java")
-        override fun onPostExecute(aVoid: Void?) {
-            when(taskType){
-                1 -> {
-                    pageCollectItemAdapter = PageCollectItemListAdapter(pageCollectItemList!!)
-                    binding.collectItemListView.adapter = pageCollectItemAdapter
-                    loadingDialog.dismiss() // 关闭进度条
-                }
-                2 -> {
-                    loadingDialog.dismiss() // 关闭进度条
-                    Toast.makeText(applicationContext,resources.getString(R.string.data_exported),Toast.LENGTH_SHORT).show()
-                    selectedItems.clear()
-                    isMultiSelectMode = false
-                    binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
-                    binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
-                    pageCollectItemAdapter.notifyDataSetChanged()
-                }
-                3 -> {
-                    pageCollectItemAdapter = PageCollectItemListAdapter(pageCollectItemList!!)
-                    binding.collectItemListView.adapter = pageCollectItemAdapter
-                    loadingDialog.dismiss() // 关闭进度条
-                    Toast.makeText(applicationContext,resources.getString(R.string.data_deleted),Toast.LENGTH_SHORT).show()
-                    selectedItems.clear()
-                    isMultiSelectMode = false
-                }
-            }
-        }
+            })
     }
 
-    fun processData(){
+    private fun processData(){
         pageTmpCollectList = pageDataHelper.getPageCollectsByMid(mid)
         pageCollectItemList = getPageCollectItemList(pageTmpCollectList!!)
     }
@@ -227,6 +188,8 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             holder.pageCollectNum.setTextColor(resources.getColor(R.color.thirdTextColor))
             view?.setBackgroundResource(R.drawable.bg_ripple)
             view?.setOnLongClickListener {
+                if (isProcessBarStatus)
+                    return@setOnLongClickListener true
                 if (!isMultiSelectMode) {
                     enterMultiSelectMode(position)
                     return@setOnLongClickListener true
@@ -234,6 +197,8 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                 return@setOnLongClickListener false
             }
             view?.setOnClickListener {
+                if (isProcessBarStatus)
+                    return@setOnClickListener
                 if (isMultiSelectMode){
                     enterMultiSelectMode(position)
                 } else {
@@ -308,8 +273,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                 pageCollectItemList = null
                 pageTmpCollectList = null
                 binding.collectItemListView.adapter = null
-                loadingDialog = ProgressDialog.show(this@InfoActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
-                LoadDataTask(1).execute()
+                lifecycleScope.launch { loadData() }
             }
             true
         }
@@ -419,8 +383,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                 pageCollectItemList = null
                 pageTmpCollectList = null
                 binding.collectItemListView.adapter = null
-                loadingDialog = ProgressDialog.show(this@InfoActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
-                LoadDataTask(1).execute()
+                lifecycleScope.launch { loadData() }
                 isDeleteData = true
             }
         }
@@ -431,19 +394,88 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
         pageDataHelper.close()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if(isMultiSelectMode){
+    private suspend fun loadData() {
+        inProcessBar()
+        withContext(Dispatchers.IO) {
+            processData()
+        }
+        outProcessBar()
+        withContext(Dispatchers.Main) {
+            pageCollectItemAdapter = PageCollectItemListAdapter(pageCollectItemList!!)
+            binding.collectItemListView.adapter = pageCollectItemAdapter
+        }
+    }
+
+    private suspend fun exportData() {
+        inProcessBar()
+        withContext(Dispatchers.IO) {
+            ZipUtils.zipFiles(zipFileNames, "$filePath1.zip")
+        }
+        outProcessBar()
+        withContext(Dispatchers.Main) {
+            Toast.makeText(applicationContext,resources.getString(R.string.data_exported),Toast.LENGTH_SHORT).show()
             selectedItems.clear()
             isMultiSelectMode = false
             binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
             pageCollectItemAdapter.notifyDataSetChanged()
-        } else {
-            val resultIntent = Intent()
-            resultIntent.putExtra("isDeleteData", isDeleteData)
-            setResult(RESULT_OK, resultIntent)
-            super.onBackPressed()
         }
+    }
+
+    private suspend fun delData() {
+        inProcessBar()
+        withContext(Dispatchers.IO) {                    val itemsToRemove = mutableListOf<String?>()
+            selectedItems.forEach {
+                itemsToRemove.add(pageCollectItemList!![it].pageCollectData)
+            }
+            itemsToRemove.forEach {
+                pageDataHelper.deleteCollectRow(mid,it)
+                pageDataHelper.decrementPageNumById(mid)
+                if (pkgName.isNotBlank()) {
+                    if (it != null) {
+                        delPageCollectData(pkgName, it)
+                    }
+                }
+            }
+            if(pageDataHelper.getPageNumById(mid) == 0) {
+                pageDataHelper.delPageAndCollectData(mid)
+                if (pkgName.isNotBlank()) {
+                    delPageData(pkgName)
+                }
+            }
+            processData()
+        }
+        outProcessBar()
+        withContext(Dispatchers.Main) {
+            pageCollectItemAdapter = PageCollectItemListAdapter(pageCollectItemList!!)
+            binding.collectItemListView.adapter = pageCollectItemAdapter
+            Toast.makeText(applicationContext,resources.getString(R.string.data_deleted),Toast.LENGTH_SHORT).show()
+            selectedItems.clear()
+            isMultiSelectMode = false
+        }
+    }
+
+    private fun inProcessBar(){
+        isProcessBarStatus = true
+        binding.progressBar.visibility = View.VISIBLE
+        binding.btExportData.visibility = View.GONE
+        binding.includeTitleBarSecond.ivBackButton.isEnabled = false
+        binding.includeTitleBarSecond.ivMoreButton.isEnabled = false
+        binding.includeTitleBarOperate.ivBackButton.isEnabled = false
+        binding.includeTitleBarOperate.ivCheckAll.isEnabled = false
+        binding.includeTitleBarOperate.ivCheckDelete.isEnabled = false
+        binding.includeTitleBarOperate.ivCheckInvert.isEnabled = false
+    }
+
+    private fun outProcessBar(){
+        isProcessBarStatus = false
+        binding.progressBar.visibility = View.GONE
+        binding.btExportData.visibility = View.VISIBLE
+        binding.includeTitleBarSecond.ivBackButton.isEnabled = true
+        binding.includeTitleBarSecond.ivMoreButton.isEnabled = true
+        binding.includeTitleBarOperate.ivBackButton.isEnabled = true
+        binding.includeTitleBarOperate.ivCheckAll.isEnabled = true
+        binding.includeTitleBarOperate.ivCheckDelete.isEnabled = true
+        binding.includeTitleBarOperate.ivCheckInvert.isEnabled = true
     }
 }

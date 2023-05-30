@@ -1,17 +1,16 @@
 package com.android.captureinterfacexposed.ui.activity
 
-import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.drawable.Drawable
-import android.os.AsyncTask
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.OnBackPressedCallback
 import androidx.core.app.ActivityOptionsCompat
+import androidx.lifecycle.lifecycleScope
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityDetailBinding
 import com.android.captureinterfacexposed.db.PageDataHelper
@@ -20,14 +19,15 @@ import com.blankj.utilcode.util.FileIOUtils
 import com.blankj.utilcode.util.FileUtils
 import com.blankj.utilcode.util.ImageUtils
 import com.blankj.utilcode.util.SizeUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.*
 import kotlin.properties.Delegates
 
 class DetailActivity : BaseActivity<ActivityDetailBinding>() {
     companion object{
         private lateinit var pageDataHelper: PageDataHelper
-        private lateinit var loadingDialog: ProgressDialog
         private var detailList: List<DetailItem>? = null
         private var mid by Delegates.notNull<Long>()
     }
@@ -36,6 +36,7 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
     private lateinit var pkgName: String
     private var isDeleteData: Boolean = false
     private var isMultiSelectMode = false
+    private var isProcessBarStatus = false
     private var selectedItems = mutableSetOf<Int>()
     private lateinit var detailAdapter: DetailListAdapter
 
@@ -47,12 +48,11 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
         pkgName = intent.getStringExtra("pkgName").toString()
 
         binding.includeTitleBarSecond.tvTitle.text = pageCollectData
-        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { onBackPressed() }
+        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { finish() }
         binding.includeTitleBarSecond.ivMoreButton.setOnClickListener { showPopupMenu(binding.includeTitleBarSecond.ivMoreButton) }
         pageDataHelper = PageDataHelper(this)
 
-        loadingDialog = ProgressDialog.show(this@DetailActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
-        LoadDataTask(1).execute()
+        lifecycleScope.launch { loadData() }
 
         binding.includeTitleBarOperate.ivBackButton.setOnClickListener {
             selectedItems.clear()
@@ -91,55 +91,34 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
             detailAdapter.notifyDataSetChanged()
         }
         binding.includeTitleBarOperate.ivCheckDelete.setOnClickListener {
-            loadingDialog = ProgressDialog.show(this@DetailActivity,resources.getString(R.string.processing_title), resources.getString(R.string.processing_desc), true, false)
-            LoadDataTask(2).execute()
+            lifecycleScope.launch { delData() }
             binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
             isDeleteData = true
         }
-
+        onBackPressedDispatcher.addCallback(
+            this, // lifecycle owner
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (!isProcessBarStatus) {
+                        if(isMultiSelectMode){
+                            selectedItems.clear()
+                            isMultiSelectMode = false
+                            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+                            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+                            detailAdapter.notifyDataSetChanged()
+                        } else {
+                            val resultIntent = Intent()
+                            resultIntent.putExtra("isDeleteData", isDeleteData)
+                            setResult(RESULT_OK, resultIntent)
+                            finish()
+                        }
+                    }
+                }
+            })
     }
 
-    private inner class LoadDataTask(private val taskType: Int) : AsyncTask<Void?, Void?, Void?>() {
-        @Deprecated("Deprecated in Java")
-        override fun doInBackground(vararg params: Void?): Void? {
-            when(taskType){
-                1 -> processData()
-                2 -> {
-                    val itemsToRemove = mutableListOf<String?>()
-                    selectedItems.forEach {
-                        itemsToRemove.add(detailList!![it].nameId.toString())
-                    }
-                    itemsToRemove.forEach {
-                        if(it != null) delDataDetail(it)
-                    }
-                    renameDetail()
-                    processData()
-                }
-            }
-            return null
-        }
-        @Deprecated("Deprecated in Java")
-        override fun onPostExecute(aVoid: Void?) {
-            when(taskType){
-                1 -> {
-                    detailAdapter = DetailListAdapter(detailList!!)
-                    binding.detailListView.adapter = detailAdapter
-                    loadingDialog.dismiss() // 关闭进度条
-                }
-                2 -> {
-                    detailAdapter = DetailListAdapter(detailList!!)
-                    binding.detailListView.adapter = detailAdapter
-                    loadingDialog.dismiss() // 关闭进度条
-                    Toast.makeText(applicationContext,resources.getString(R.string.data_deleted), Toast.LENGTH_SHORT).show()
-                    selectedItems.clear()
-                    isMultiSelectMode = false
-                }
-            }
-        }
-    }
-
-    fun processData(){
+    private fun processData(){
         detailList = getDetailItemList()
     }
 
@@ -333,6 +312,8 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
 
             view?.setBackgroundResource(R.drawable.bg_ripple)
             view?.setOnLongClickListener {
+                if (isProcessBarStatus)
+                    return@setOnLongClickListener true
                 if (!isMultiSelectMode) {
                     enterMultiSelectMode(position)
                     return@setOnLongClickListener true
@@ -340,6 +321,8 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
                 return@setOnLongClickListener false
             }
             view?.setOnClickListener {
+                if (isProcessBarStatus)
+                    return@setOnClickListener
                 if (isMultiSelectMode){
                     enterMultiSelectMode(position)
                 } else {
@@ -414,8 +397,7 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
             if (item.itemId == R.id.refresh_list) {
                 detailList = null
                 binding.detailListView.adapter = null
-                loadingDialog = ProgressDialog.show(this@DetailActivity,resources.getString(R.string.load_data_title), resources.getString(R.string.load_data_desc), true, false)
-                LoadDataTask(1).execute()
+                lifecycleScope.launch { loadData() }
             }
             true
         }
@@ -445,24 +427,65 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if(isMultiSelectMode){
-            selectedItems.clear()
-            isMultiSelectMode = false
-            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
-            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
-            detailAdapter.notifyDataSetChanged()
-        } else {
-            val resultIntent = Intent()
-            resultIntent.putExtra("isDeleteData", isDeleteData)
-            setResult(RESULT_OK, resultIntent)
-            super.onBackPressed()
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         pageDataHelper.close()
+    }
+
+    private suspend fun loadData() {
+        inProcessBar()
+        withContext(Dispatchers.IO) {
+            processData()
+        }
+        outProcessBar()
+        withContext(Dispatchers.Main) {
+            detailAdapter = DetailListAdapter(detailList!!)
+            binding.detailListView.adapter = detailAdapter
+        }
+    }
+
+    private suspend fun delData() {
+        inProcessBar()
+        withContext(Dispatchers.IO) {
+            val itemsToRemove = mutableListOf<String?>()
+            selectedItems.forEach {
+                itemsToRemove.add(detailList!![it].nameId.toString())
+            }
+            itemsToRemove.forEach {
+                if(it != null) delDataDetail(it)
+            }
+            renameDetail()
+            processData()
+        }
+        outProcessBar()
+        withContext(Dispatchers.Main) {
+            detailAdapter = DetailListAdapter(detailList!!)
+            binding.detailListView.adapter = detailAdapter
+            Toast.makeText(applicationContext,resources.getString(R.string.data_deleted), Toast.LENGTH_SHORT).show()
+            selectedItems.clear()
+            isMultiSelectMode = false
+        }
+    }
+
+    private fun inProcessBar(){
+        isProcessBarStatus = true
+        binding.progressBar.visibility = View.VISIBLE
+        binding.includeTitleBarSecond.ivBackButton.isEnabled = false
+        binding.includeTitleBarSecond.ivMoreButton.isEnabled = false
+        binding.includeTitleBarOperate.ivBackButton.isEnabled = false
+        binding.includeTitleBarOperate.ivCheckAll.isEnabled = false
+        binding.includeTitleBarOperate.ivCheckDelete.isEnabled = false
+        binding.includeTitleBarOperate.ivCheckInvert.isEnabled = false
+    }
+
+    private fun outProcessBar(){
+        isProcessBarStatus = false
+        binding.progressBar.visibility = View.GONE
+        binding.includeTitleBarSecond.ivBackButton.isEnabled = true
+        binding.includeTitleBarSecond.ivMoreButton.isEnabled = true
+        binding.includeTitleBarOperate.ivBackButton.isEnabled = true
+        binding.includeTitleBarOperate.ivCheckAll.isEnabled = true
+        binding.includeTitleBarOperate.ivCheckDelete.isEnabled = true
+        binding.includeTitleBarOperate.ivCheckInvert.isEnabled = true
     }
 }
