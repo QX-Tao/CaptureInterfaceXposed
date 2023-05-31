@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.properties.Delegates
 
+
 class DetailActivity : BaseActivity<ActivityDetailBinding>() {
     companion object{
         private lateinit var pageDataHelper: PageDataHelper
@@ -198,16 +199,36 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
                 screenName.add(pageCollectItems[i])
             }
         }
-        accessibilityName.sort()
-        sdkName.sort()
-        screenName.sort()
+        accessibilityName.sortedWith { s1, s2 ->
+            val num1 = s1.filter { it.isDigit() }.toInt()
+            val num2 = s2.filter { it.isDigit() }.toInt()
+            num1.compareTo(num2)
+        }
+        sdkName.sortedWith { s1, s2 ->
+            val num1 = s1.filter { it.isDigit() }.toInt()
+            val num2 = s2.filter { it.isDigit() }.toInt()
+            num1.compareTo(num2)
+        }
+        screenName.sortedWith { s1, s2 ->
+            val num1 = s1.filter { it.isDigit() }.toInt()
+            val num2 = s2.filter { it.isDigit() }.toInt()
+            num1.compareTo(num2)
+        }
         for (i in 1 .. pageCollectNum.toInt()){
             val accessibilityFileName = "无障碍_TreeView($i).json"
             val sdkFileName = "SDK_TreeView($i).json"
             val screenFileName = "Screen($i).png"
-            FileUtils.rename(filePath.toString() + File.separator + accessibilityName[i - 1],accessibilityFileName)
-            FileUtils.rename(filePath.toString() + File.separator + sdkName[i - 1],sdkFileName)
-            FileUtils.rename(filePath.toString() + File.separator + screenName[i - 1],screenFileName)
+            FileUtils.rename(filePath.toString() + File.separator + accessibilityName[i - 1],"$accessibilityFileName.tmp")
+            FileUtils.rename(filePath.toString() + File.separator + sdkName[i - 1], "$sdkFileName.tmp")
+            FileUtils.rename(filePath.toString() + File.separator + screenName[i - 1],"$screenFileName.tmp")
+        }
+        for (i in 1 .. pageCollectNum.toInt()){
+            val accessibilityFileName = "无障碍_TreeView($i).json"
+            val sdkFileName = "SDK_TreeView($i).json"
+            val screenFileName = "Screen($i).png"
+            FileUtils.rename(filePath.toString() + File.separator + "$accessibilityFileName.tmp", accessibilityFileName)
+            FileUtils.rename(filePath.toString() + File.separator + "$sdkFileName.tmp",sdkFileName)
+            FileUtils.rename(filePath.toString() + File.separator +"$screenFileName.tmp",screenFileName)
         }
         pageDataHelper.updatePageCollectNumByIdAndData(mid,pageCollectData,pageCollectNum.toInt())
     }
