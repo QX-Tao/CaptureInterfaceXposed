@@ -163,20 +163,11 @@ class DefaultApplication : ModuleApplication() {
         fun getScreen(filePath: String) {
             val cmd = "screencap -p \"$filePath\""
             ShellUtils.execCmd(cmd, true)
-//            if (ShellUtils.execCmd(cmd, true).result == 0) {
-//                Toast.makeText(appContext, appContext.resources.getString(R.string.success_screen), Toast.LENGTH_SHORT).show()
-//            } else {
-//                Toast.makeText(appContext, appContext.resources.getString(R.string.failure_screen), Toast.LENGTH_SHORT).show()
-//            }
         }
         @JvmStatic
         fun mkDir(path: String) {
             val cmd = "mkdir -p \"$path\""
-            if (ShellUtils.execCmd(cmd, true).result == 0) {
-                Toast.makeText(appContext, appContext.resources.getString(R.string.success_mkdir), Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(appContext, appContext.resources.getString(R.string.failure_mkdir), Toast.LENGTH_SHORT).show()
-            }
+            ShellUtils.execCmd(cmd, true)
         }
         @JvmStatic
         fun reboot() {
