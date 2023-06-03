@@ -1,10 +1,12 @@
 package com.android.captureinterfacexposed.hook
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
 import android.webkit.WebView
-import android.widget.Toast
+import android.webkit.WebViewClient
 import com.android.captureinterfacexposed.BuildConfig
 import com.highcapable.yukihookapi.annotation.xposed.InjectYukiHookWithXposed
 import com.highcapable.yukihookapi.hook.factory.configs
@@ -12,9 +14,11 @@ import com.highcapable.yukihookapi.hook.factory.encase
 import com.highcapable.yukihookapi.hook.xposed.bridge.event.YukiXposedEvent
 import com.highcapable.yukihookapi.hook.xposed.proxy.IYukiHookXposedInit
 import com.tencent.automationlib.Automation
+import com.tencent.automationlib.JsBridge
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import java.io.File
+
 
 @InjectYukiHookWithXposed(isUsingResourcesHook = false)
 class HookEntry : IYukiHookXposedInit {
@@ -48,7 +52,8 @@ class HookEntry : IYukiHookXposedInit {
                                     Log.d("ContextImplHook", "getSharedPreferencesPath: $name")
                                     param.result = File("$preferencesDir/$name.xml")
                                 }
-                            })
+                            }
+                        )
                     }
                     else -> {
                         XposedHelpers.findAndHookMethod(
@@ -58,15 +63,104 @@ class HookEntry : IYukiHookXposedInit {
                                     Automation.enable(1)
                                     super.afterHookedMethod(param)
                                 }
-                            })
-                        XposedHelpers.findAndHookMethod(
-                            "android.webkit.WebView", lpparam.classLoader, "<init>",
-                            String::class.java, object : XC_MethodHook() {
+                            }
+                        )
+                        XposedHelpers.findAndHookConstructor(
+                            WebView::class.java, Context::class.java, object : XC_MethodHook() {
                                 override fun afterHookedMethod(param: MethodHookParam) {
-                                    val name: String = param.args[0] as String
-                                    super.afterHookedMethod(param)
+                                    val webView = param.thisObject as WebView
+                                    webView.settings.javaScriptEnabled = true
+                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
+                                    WebView.setWebContentsDebuggingEnabled(true)
                                 }
-                            })
+                            }
+                        )
+                        XposedHelpers.findAndHookConstructor(
+                            WebView::class.java, Context::class.java,AttributeSet::class.java,
+                            object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    val webView = param.thisObject as WebView
+                                    webView.settings.javaScriptEnabled = true
+                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
+                                    WebView.setWebContentsDebuggingEnabled(true)
+                                }
+                            }
+                        )
+                        XposedHelpers.findAndHookConstructor(
+                            WebView::class.java, Context::class.java,AttributeSet::class.java,
+                            Int::class.java, object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    val webView = param.thisObject as WebView
+                                    webView.settings.javaScriptEnabled = true
+                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
+                                    WebView.setWebContentsDebuggingEnabled(true)
+                                }
+                            }
+                        )
+                        XposedHelpers.findAndHookConstructor(
+                            WebView::class.java, Context::class.java, AttributeSet::class.java,
+                            Int::class.java, Int::class.java, object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    val webView = param.thisObject as WebView
+                                    webView.settings.javaScriptEnabled = true
+                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
+                                    WebView.setWebContentsDebuggingEnabled(true)
+                                }
+                            }
+                        )
+                        XposedHelpers.findAndHookMethod(
+                            WebViewClient::class.java, "onPageFinished",
+                            WebView::class.java, String::class.java, object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam?) {
+                                    val webView = param!!.args[0] as WebView
+                                    JsBridge.getInstance().injectJs(webView)
+                                }
+                            }
+                        )
+
+
+                        XposedHelpers.findAndHookConstructor(
+                            com.tencent.smtt.sdk.WebView::class.java, Context::class.java,
+                           object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    val webView = param.thisObject as com.tencent.smtt.sdk.WebView
+                                    webView.settings.javaScriptEnabled = true
+                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
+                                    WebView.setWebContentsDebuggingEnabled(true)
+                                }
+                            }
+                        )
+                        XposedHelpers.findAndHookConstructor(
+                            com.tencent.smtt.sdk.WebView::class.java, Context::class.java,AttributeSet::class.java,
+                            object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    val webView = param.thisObject as com.tencent.smtt.sdk.WebView
+                                    webView.settings.javaScriptEnabled = true
+                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
+                                    WebView.setWebContentsDebuggingEnabled(true)
+                                }
+                            }
+                        )
+                        XposedHelpers.findAndHookConstructor(
+                            com.tencent.smtt.sdk.WebView::class.java, Context::class.java,AttributeSet::class.java,
+                            Int::class.java, object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    val webView = param.thisObject as com.tencent.smtt.sdk.WebView
+                                    webView.settings.javaScriptEnabled = true
+                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
+                                    WebView.setWebContentsDebuggingEnabled(true)
+                                }
+                            }
+                        )
+                        XposedHelpers.findAndHookMethod(
+                            com.tencent.smtt.sdk.WebViewClient::class.java, "onPageFinished",
+                            com.tencent.smtt.sdk.WebView::class.java, String::class.java, object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam?) {
+                                    val webView = param!!.args[0] as com.tencent.smtt.sdk.WebView
+                                    JsBridge.getInstance().injectJs(webView)
+                                }
+                            }
+                        )
                     }
                 }
             }
