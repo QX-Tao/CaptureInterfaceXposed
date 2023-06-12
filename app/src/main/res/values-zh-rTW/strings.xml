@@ -14,6 +14,8 @@
     <string name="use_lsp">LSP注入</string>
     <string name="use_lsp_summary_on">開啓將使用LSP注入模式</string>
     <string name="use_lsp_summary_off">關閉將使用普通模式 需手動插樁</string>
+    <string name="use_cmd">使用CMD</string>
+    <string name="use_cmd_summary">"使用cmd簡化操作，例如獲取運行時權限 "</string>
     <string name="settings">設置</string>
     <string name="collect_result">收集結果</string>
     <string name="more">更多</string>
@@ -48,6 +50,8 @@
     <string name="failure_allow_accessibility_service">應用無障礙設置開啓失敗</string>
     <string name="success_allow_PROJECT_MEDIA_permission">已開啓錄屏權限</string>
     <string name="failure_allow_PROJECT_MEDIA_permission">錄屏權限開啓失敗</string>
+    <string name="success_allow_ALLFILE_MANAGE_permission">已開啓所有文件管理權限</string>
+    <string name="failure_allow_ALLFILE_MANAGE_permission">所有文件管理權限開啓失敗</string>
     <string name="enable_module_LSP_scope">已打開LSP作用域</string>
     <string name="enable_hook_by_LSP">Hook成功</string>
     <string name="success_screen">截圖成功</string>
@@ -85,6 +89,9 @@
     <string name="lsp_off_running_desc">已開啓LSP注入模式，模塊未激活，已嘗試加載LSP作用域，可能需要重啓手機。</string>
     <string name="lsp_on_running_desc">當前使用LSP注入模式，您需要選擇一個應用，點擊開始收集即可運行應用並進行收集。</string>
     <string name="confirm">確定</string>
+    <string name="cancel">取消</string>
+    <string name="reselect">重新選擇</string>
+    <string name="rename_file">重新命名</string>
     <string name="hint">提示</string>
     <string name="hint_desc">如LSP注入模式無法正常使用，可打開LSPosed查看狀態，需確保模塊作用域包含“系統框架(android)”和待測APP，點擊“確定”以打開LSPosed</string>
     <string name="need_permission">需要權限</string>
@@ -102,6 +109,10 @@
     <string name="select_save_path">選擇保存的路徑</string>
     <string name="current">"當前: "</string>
     <string name="storage_permission">存儲權限</string>
+    <string name="type">類型</string>
+    <string name="num">數字</string>
+    <string name="other">其它</string>
+    <string name="selected">已選擇</string>
     <string name="storage_permission_desc">請授予存儲權限，以便進行應用界面收集時數據的存儲</string>
     <string name="all_file_permission">所有文件權限</string>
     <string name="all_file_permission_desc">安卓11及以上系統，需要授予所有文件管理權限</string>
@@ -124,4 +135,6 @@
     <string name="accessibility_collects">無障礙收集:  %1$1s</string>
     <string name="sdk_collects">SDK收集:  %1$1s</string>
     <string name="collect_detail">收集詳情</string>
+    <string name="data_error">數據錯誤</string>
+    <string name="data_error_desc">"收集“%1$s”出現錯誤，位於“%2$s”，請點擊“確認”以檢查文件。 "</string>
 </resources>

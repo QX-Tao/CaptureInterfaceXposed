@@ -1,15 +1,28 @@
 package com.android.captureinterfacexposed.ui.activity
 
+import android.R.attr
 import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.BaseAdapter
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.PopupMenu
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityDetailBinding
@@ -23,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.net.URLDecoder
 import kotlin.properties.Delegates
 
 
@@ -31,15 +45,20 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
         private lateinit var pageDataHelper: PageDataHelper
         private var detailList: List<DetailItem>? = null
         private var mid by Delegates.notNull<Long>()
+        @JvmStatic
+        private val FILE_URI_REQUEST_CODE = 99
     }
     private lateinit var pageCollectNum: String
     private lateinit var pageCollectData: String
     private lateinit var pkgName: String
+    private lateinit var appName: String
     private var isDeleteData: Boolean = false
     private var isMultiSelectMode = false
     private var isProcessBarStatus = false
     private var selectedItems = mutableSetOf<Int>()
     private lateinit var detailAdapter: DetailListAdapter
+    private lateinit var dispatcher: OnBackPressedDispatcher
+    private lateinit var callback: OnBackPressedCallback
 
 
     override fun onCreate() {
@@ -47,9 +66,10 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
         pageCollectNum = intent.getStringExtra("page_collect_num").toString()
         pageCollectData = intent.getStringExtra("page_collect_data").toString()
         pkgName = intent.getStringExtra("pkgName").toString()
+        appName = intent.getStringExtra("appName").toString()
 
         binding.includeTitleBarSecond.tvTitle.text = pageCollectData
-        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { finish() }
+        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { dispatcher.onBackPressed() }
         binding.includeTitleBarSecond.ivMoreButton.setOnClickListener { showPopupMenu(binding.includeTitleBarSecond.ivMoreButton) }
         pageDataHelper = PageDataHelper(this)
 
@@ -97,26 +117,26 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
             binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
             isDeleteData = true
         }
-        onBackPressedDispatcher.addCallback(
-            this, // lifecycle owner
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (!isProcessBarStatus) {
-                        if(isMultiSelectMode){
-                            selectedItems.clear()
-                            isMultiSelectMode = false
-                            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
-                            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
-                            detailAdapter.notifyDataSetChanged()
-                        } else {
-                            val resultIntent = Intent()
-                            resultIntent.putExtra("isDeleteData", isDeleteData)
-                            setResult(RESULT_OK, resultIntent)
-                            finish()
-                        }
+        dispatcher = onBackPressedDispatcher
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!isProcessBarStatus) {
+                    if(isMultiSelectMode){
+                        selectedItems.clear()
+                        isMultiSelectMode = false
+                        binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+                        binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+                        detailAdapter.notifyDataSetChanged()
+                    } else {
+                        val resultIntent = Intent()
+                        resultIntent.putExtra("isDeleteData", isDeleteData)
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
                     }
                 }
-            })
+            }
+        }
+        dispatcher.addCallback(callback)
     }
 
     private fun processData(){
@@ -130,23 +150,54 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
      */
     private fun getDetailItemList(): List<DetailItem> {
         val detailItems = mutableListOf<DetailItem>()
-        for(i in 1 until pageCollectNum.toInt() + 1){
-            val accessibilityFileName = "无障碍_TreeView($i).json"
-            val sdkFileName = "SDK_TreeView($i).json"
-            val screenFileName = "Screen($i).png"
-            val tmpAccessibilityText = FileIOUtils.readFile2String(getFilePath(accessibilityFileName))
-            val tmpSdkText = FileIOUtils.readFile2String(getFilePath(sdkFileName))
-            val screenSize = ImageUtils.getSize(getFilePath(screenFileName))
-            val outWidth = screenSize[0]
-            val outHeight = screenSize[1]
-            val ratio = outHeight.toFloat() / outWidth.toFloat()
-            val tmpScreen = ImageUtils.scale(ImageUtils.getBitmap(getFilePath(screenFileName)),
-                SizeUtils.dp2px(100F),SizeUtils.dp2px(100F * ratio))
-            val screen = ImageUtils.bitmap2Drawable(tmpScreen)
-            val accessibilityText =  if (tmpAccessibilityText.length > 320) tmpAccessibilityText.substring(0..320) else tmpAccessibilityText
-            val sdkText = if (tmpSdkText.length > 320) tmpSdkText.substring(0..320) else tmpSdkText
-            val detailItem = DetailItem(i, accessibilityFileName, sdkFileName, screenFileName,accessibilityText,sdkText,screen)
-            detailItems.add(detailItem)
+        try {
+            for(i in 1 until pageCollectNum.toInt() + 1){
+                val accessibilityFileName = "无障碍_TreeView($i).json"
+                val sdkFileName = "SDK_TreeView($i).json"
+                val screenFileName = "Screen($i).png"
+                val tmpAccessibilityText = FileIOUtils.readFile2String(getFilePath(accessibilityFileName))
+                val tmpSdkText = FileIOUtils.readFile2String(getFilePath(sdkFileName))
+                val screenSize = ImageUtils.getSize(getFilePath(screenFileName))
+                val outWidth = screenSize[0]
+                val outHeight = screenSize[1]
+                val ratio = outHeight.toFloat() / outWidth.toFloat()
+                val tmpScreen = ImageUtils.scale(ImageUtils.getBitmap(getFilePath(screenFileName)),
+                    SizeUtils.dp2px(100F),SizeUtils.dp2px(100F * ratio))
+                val screen = ImageUtils.bitmap2Drawable(tmpScreen)
+                val accessibilityText =  if (tmpAccessibilityText.length > 320) tmpAccessibilityText.substring(0..320) else tmpAccessibilityText
+                val sdkText = if (tmpSdkText.length > 320) tmpSdkText.substring(0..320) else tmpSdkText
+                val detailItem = DetailItem(i, accessibilityFileName, sdkFileName, screenFileName,accessibilityText,sdkText,screen)
+                detailItems.add(detailItem)
+            }
+        } catch (e: NullPointerException){
+            e.printStackTrace()
+            val builder = AlertDialog.Builder(this@DetailActivity)
+            runOnUiThread {
+                builder.setTitle(getString(R.string.data_error))
+                    .setMessage(String.format(getString(R.string.data_error_desc),pageCollectData,
+                        String.format(getString(R.string.app_infos),appName,pkgName)))
+                    .setPositiveButton(getString(R.string.confirm)){ _,_ ->
+                        val v1 = applicationContext.resources.getString(R.string.collect_folder)
+                        val filePath = "%2fDownload%2f$v1%2f$pkgName%2f$pageCollectData%2f"
+                        val uri = Uri.parse("content://com.android.externalstorage.documents/document/primary:$filePath")
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                        intent.addCategory(Intent.CATEGORY_OPENABLE)
+                        intent.type = "*/*"
+                        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
+                        startActivityForResult(intent,FILE_URI_REQUEST_CODE)
+                    }
+                    .setNegativeButton(getString(R.string.back)){ _,_ -> dispatcher.onBackPressed() }
+                    .setNeutralButton(getString(R.string.delete)){ _,_ ->
+                        pageDataHelper.deleteCollectRow(mid,pageCollectData)
+                        delPageCollectData(pkgName, pageCollectData)
+                        Toast.makeText(applicationContext,resources.getString(R.string.data_deleted), Toast.LENGTH_SHORT).show()
+                        isDeleteData = true
+                        dispatcher.onBackPressed()
+                    }
+                    .setCancelable(false)
+                    .create()
+                    .show()
+            }
         }
         return detailItems
     }
@@ -508,5 +559,75 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
         binding.includeTitleBarOperate.ivCheckAll.isEnabled = true
         binding.includeTitleBarOperate.ivCheckDelete.isEnabled = true
         binding.includeTitleBarOperate.ivCheckInvert.isEnabled = true
+    }
+
+    /**
+     * on activity result to start ScreenShotService
+     *
+     * 结果回调
+     */
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // 获取实时截图
+        if (requestCode == FILE_URI_REQUEST_CODE && resultCode == RESULT_OK) {
+            var filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.collect_folder) + File.separator + pkgName + File.separator + pageCollectData)
+            val builder = AlertDialog.Builder(this@DetailActivity)
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.layout_rename_dialog, null)
+            val tvFileUri = dialogView.findViewById<TextView>(R.id.tv_file_uri)
+            val spRenameType = dialogView.findViewById<Spinner>(R.id.sp_rename_type)
+            val etRenameNum = dialogView.findViewById<EditText>(R.id.et_rename_num)
+            var slTypeText: String? = null
+            var slNumText: String? = null
+            spRenameType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                    slTypeText = when(position){
+                        0 -> "Screen("
+                        1 -> "无障碍_TreeView("
+                        2 -> "SDK_TreeView("
+                        else -> ""
+                    }
+                }
+                override fun onNothingSelected(parent: AdapterView<*>) {}
+            }
+            etRenameNum.doAfterTextChanged {
+                slNumText = etRenameNum.text.toString() + ")"
+            }
+            runOnUiThread {
+                val uri: Uri? = data?.data
+                val fileName = URLDecoder.decode(uri.toString(),"UTF-8")
+                    .split("/").last()
+                tvFileUri.text = fileName
+                builder.setTitle(getString(R.string.rename_file))
+                    .setView(dialogView)
+                    .setPositiveButton(getString(R.string.confirm)){ _,_ ->
+                        FileUtils.rename(filePath.toString() + File.separator + fileName,
+                            "$slTypeText$slNumText." + fileName.split(".").last()
+                        )
+                        detailList = null
+                        binding.detailListView.adapter = null
+                        lifecycleScope.launch { loadData() }
+                    }
+                    .setNegativeButton(getString(R.string.cancel)){_,_ ->
+                        detailList = null
+                        binding.detailListView.adapter = null
+                        lifecycleScope.launch { loadData() }
+                    }
+                    .setNeutralButton(getString(R.string.reselect)) { _, _ ->
+                        val v1 = applicationContext.resources.getString(R.string.collect_folder)
+                        val filePath1 = "%2fDownload%2f$v1%2f$pkgName%2f$pageCollectData%2f"
+                        val uri1 = Uri.parse("content://com.android.externalstorage.documents/document/primary:$filePath1")
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                        intent.addCategory(Intent.CATEGORY_OPENABLE)
+                        intent.type = "*/*"
+                        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri1)
+                        startActivityForResult(intent,FILE_URI_REQUEST_CODE)
+                    }
+                    .setCancelable(false)
+                    .create()
+                    .show()
+            }
+        }
     }
 }

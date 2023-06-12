@@ -51,7 +51,7 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
                     // 遍历整个控件树
                     try {
                         JSONObject jsonObject = accessibilityNodeInfoToJson(rootNode, 0);
-                        Log.d("JSON", jsonObject.toString());
+                        Log.d("Accessible JSON", jsonObject.toString());
                         CollectDataUtil.getInstance(getApplicationContext()).setAccessibleJson(jsonObject.toString());
                     } catch (JSONException e) {
                         Log.e("JSONException", e.toString());

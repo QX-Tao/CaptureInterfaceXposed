@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.lifecycle.lifecycleScope
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityDataBinding
@@ -35,10 +36,12 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
     private lateinit var pageItemAdapter: PageItemListAdapter
     private lateinit var filePath1: File
     private val zipFileNames = mutableListOf<String>()
+    private lateinit var dispatcher: OnBackPressedDispatcher
+    private lateinit var callback: OnBackPressedCallback
 
     override fun onCreate() {
         binding.includeTitleBarSecond.tvTitle.text = getString(R.string.collect_result)
-        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { finish() }
+        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { dispatcher.onBackPressed() }
         binding.includeTitleBarSecond.ivMoreButton.setOnClickListener { showPopupMenu(binding.includeTitleBarSecond.ivMoreButton) }
         pageDataHelper = PageDataHelper(this)
         lifecycleScope.launch { loadData() }
@@ -100,23 +103,23 @@ class DataActivity : BaseActivity<ActivityDataBinding>() {
             }
             lifecycleScope.launch { exportData() }
         }
-        onBackPressedDispatcher.addCallback(
-            this, // lifecycle owner
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (!isProcessBarStatus) {
-                        if (isMultiSelectMode) {
-                            selectedItems.clear()
-                            isMultiSelectMode = false
-                            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
-                            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
-                            pageItemAdapter.notifyDataSetChanged()
-                        } else {
-                            finish()
-                        }
+        dispatcher = onBackPressedDispatcher
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!isProcessBarStatus) {
+                    if (isMultiSelectMode) {
+                        selectedItems.clear()
+                        isMultiSelectMode = false
+                        binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+                        binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+                        pageItemAdapter.notifyDataSetChanged()
+                    } else {
+                        finish()
                     }
                 }
-            })
+            }
+        }
+        dispatcher.addCallback(callback)
     }
 
     /**

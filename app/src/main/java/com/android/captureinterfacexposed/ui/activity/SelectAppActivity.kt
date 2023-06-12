@@ -19,12 +19,10 @@ import android.widget.AdapterView.OnItemClickListener
 import android.widget.BaseAdapter
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.ListView
 import android.widget.PopupMenu
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.application.DefaultApplication.Companion.entryActivityClassName
@@ -56,6 +54,7 @@ class SelectAppActivity : BaseActivity<ActivitySelectAppBinding>() {
         }
         binding.searchView.isSubmitButtonEnabled = false
         binding.searchView.onActionViewExpanded()
+        binding.searchView.clearFocus()
 
         // 添加搜索框的监听器
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -265,8 +264,8 @@ class SelectAppActivity : BaseActivity<ActivitySelectAppBinding>() {
         popupMenu.menu.findItem(R.id.restart_app).isVisible = false
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.refresh_list) {
-                binding.searchView!!.setQuery("", false)
-                binding.appListView!!.adapter = null
+                binding.searchView.setQuery("", false)
+                binding.appListView.adapter = null
                 appList!!.clear()
                 appItemList!!.clear()
                 lifecycleScope.launch { loadData() }

@@ -99,6 +99,9 @@
     <string name="lsp_off_running_desc">The LSP injection mode is enabled, but the module is not activated. The LSP scope has been loaded. The mobile phone may need to be restarted. </string>
     <string name="lsp_on_running_desc">LSP injection mode is activated. You need to select an application and click "Start Collection" to run the application and collect the application.</string>
     <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="reselect">Reselect</string>
+    <string name="rename_file">Rename file</string>
     <string name="hint">Hint</string>
     <string name="hint_desc">If the LSP injection mode cannot work properly, you can enable LSPosed to check the status. Ensure that the scope of the module includes "System Framework (android)" and the APP to be tested, and click "Confirm" to enable LSPosed.</string>
     <string name="need_permission">Need permission</string>
@@ -115,6 +118,10 @@
     <string name="select_save_path">Select a save path</string>
     <string name="current">Current: </string>
     <string name="storage_permission">Storage permission</string>
+    <string name="type">Type</string>
+    <string name="num">Num</string>
+    <string name="other">Other</string>
+    <string name="selected">Selected</string>
     <string name="storage_permission_desc">Grant storage permission to store data for application interface collection</string>
     <string name="all_file_permission">All file permission</string>
     <string name="all_file_permission_desc">For Android 11 or later, you need to grant all file permission</string>
@@ -129,6 +136,7 @@
     <string name="follow_system">Follow system</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
-
+    <string name="data_error">Data error</string>
+    <string name="data_error_desc">There are something wrong in collect \"%1$s\", in \"%2$s\", check \"Confirm\" to check files.</string>
 
 </resources>

@@ -56,6 +56,7 @@ class HookEntry : IYukiHookXposedInit {
                         )
                     }
                     else -> {
+                        // hook oncreate
                         XposedHelpers.findAndHookMethod(
                             Activity::class.java, "onCreate",
                             Bundle::class.java, object : XC_MethodHook() {
@@ -65,6 +66,8 @@ class HookEntry : IYukiHookXposedInit {
                                 }
                             }
                         )
+
+                        // hook android webview
                         XposedHelpers.findAndHookConstructor(
                             WebView::class.java, Context::class.java, object : XC_MethodHook() {
                                 override fun afterHookedMethod(param: MethodHookParam) {
@@ -113,50 +116,6 @@ class HookEntry : IYukiHookXposedInit {
                             WebView::class.java, String::class.java, object : XC_MethodHook() {
                                 override fun afterHookedMethod(param: MethodHookParam?) {
                                     val webView = param!!.args[0] as WebView
-                                    JsBridge.getInstance().injectJs(webView)
-                                }
-                            }
-                        )
-
-
-                        XposedHelpers.findAndHookConstructor(
-                            com.tencent.smtt.sdk.WebView::class.java, Context::class.java,
-                           object : XC_MethodHook() {
-                                override fun afterHookedMethod(param: MethodHookParam) {
-                                    val webView = param.thisObject as com.tencent.smtt.sdk.WebView
-                                    webView.settings.javaScriptEnabled = true
-                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
-                                    WebView.setWebContentsDebuggingEnabled(true)
-                                }
-                            }
-                        )
-                        XposedHelpers.findAndHookConstructor(
-                            com.tencent.smtt.sdk.WebView::class.java, Context::class.java,AttributeSet::class.java,
-                            object : XC_MethodHook() {
-                                override fun afterHookedMethod(param: MethodHookParam) {
-                                    val webView = param.thisObject as com.tencent.smtt.sdk.WebView
-                                    webView.settings.javaScriptEnabled = true
-                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
-                                    WebView.setWebContentsDebuggingEnabled(true)
-                                }
-                            }
-                        )
-                        XposedHelpers.findAndHookConstructor(
-                            com.tencent.smtt.sdk.WebView::class.java, Context::class.java,AttributeSet::class.java,
-                            Int::class.java, object : XC_MethodHook() {
-                                override fun afterHookedMethod(param: MethodHookParam) {
-                                    val webView = param.thisObject as com.tencent.smtt.sdk.WebView
-                                    webView.settings.javaScriptEnabled = true
-                                    webView.addJavascriptInterface(JsBridge.getInstance(),"JsBridge")
-                                    WebView.setWebContentsDebuggingEnabled(true)
-                                }
-                            }
-                        )
-                        XposedHelpers.findAndHookMethod(
-                            com.tencent.smtt.sdk.WebViewClient::class.java, "onPageFinished",
-                            com.tencent.smtt.sdk.WebView::class.java, String::class.java, object : XC_MethodHook() {
-                                override fun afterHookedMethod(param: MethodHookParam?) {
-                                    val webView = param!!.args[0] as com.tencent.smtt.sdk.WebView
                                     JsBridge.getInstance().injectJs(webView)
                                 }
                             }

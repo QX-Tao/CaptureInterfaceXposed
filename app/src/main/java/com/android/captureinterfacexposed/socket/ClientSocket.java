@@ -1,12 +1,14 @@
 package com.android.captureinterfacexposed.socket;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
+import android.util.Log;
 
 import com.android.captureinterfacexposed.utils.CollectDataUtil;
 import com.android.captureinterfacexposed.utils.CurrentCollectUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -19,7 +21,7 @@ public class ClientSocket {
     BufferedReader in = null;
     PrintWriter out = null;
 
-    private Socket serverSocket;
+    private final Socket serverSocket;
 
     public ClientSocket(Context context, String HOSTNAME, int PORT){
         mContext = context;
@@ -43,37 +45,23 @@ public class ClientSocket {
             // 从服务端接收消息并打印
             in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
             String packageName = in.readLine();
+            Log.d("socket get pkgName", String.valueOf(packageName));
             CurrentCollectUtil.setCollectPackageName(packageName);
             String serverMsg = in.readLine();
+            Log.d("socket get sdkJson", String.valueOf(serverMsg));
             CollectDataUtil.getInstance(mContext.getApplicationContext()).setSdkJson(serverMsg);
             countDownLatch.countDown();
 
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
                 in.close();
                 out.close();
-
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                Log.e(TAG,"socket error");
             }
 
-        }
-    }
-
-
-    /**
-     * 创建文件夹
-     */
-    public void newDirectory(String _path, String dirName) {
-        File file = new File(_path + "/" + dirName);
-        try {
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

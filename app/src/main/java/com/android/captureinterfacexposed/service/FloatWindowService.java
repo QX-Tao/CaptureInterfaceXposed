@@ -1,5 +1,6 @@
 package com.android.captureinterfacexposed.service;
 
+import static android.content.ContentValues.TAG;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
@@ -249,7 +250,7 @@ public class FloatWindowService {
                                 CurrentCollectUtil.setCollectTime(dateStr);
                                 newDirectory(clickFilePath, dateStr);
                                 CurrentCollectUtil.setCollectFilePath(clickFilePath + File.separator  + dateStr);
-                                collectDataUtil.saveCollectData();
+                                if(!collectDataUtil.saveCollectData()) return;
 
                                 long pageId = mDbHelper.getPageIdByPkgName(CurrentCollectUtil.getCollectPackageName()); // 根据包名查pageId
                                 if(pageId == -1) { // 未记录
@@ -261,7 +262,7 @@ public class FloatWindowService {
                                     mDbHelper.addCollect(pageId, CurrentCollectUtil.getCollectTime(), CurrentCollectUtil.getInterfaceNum()); // collect表 + 1行
                                 }
                             } else { // 点击右键
-                                collectDataUtil.saveCollectData();
+                                if(!collectDataUtil.saveCollectData()) return;
                                 long pageId = mDbHelper.getPageIdByPkgName(CurrentCollectUtil.getCollectPackageName()); // 根据包名查pageId
                                 mDbHelper.incrementPageCollectNumByIdAndData(pageId, CurrentCollectUtil.getCollectTime()); // collect表记录 + 1
                             }
@@ -298,7 +299,7 @@ public class FloatWindowService {
                         ClientSocket c = new ClientSocket(context.getApplicationContext(),"127.0.0.1", 9000);
                         c.send("开始收集",countDownLatch);
                     } catch (Exception e) {
-                        e.printStackTrace();
+                         e.printStackTrace();
                     }
                 });
                 thread1.start();

@@ -62,11 +62,22 @@ public class CollectDataUtil {
     public boolean isCollectIntact(){
         return sdkJson != null && accessibleJson != null && screenPng != null;
     }
+    public boolean isCollectIntactCmd(){
+        return sdkJson != null && accessibleJson != null;
+    }
 
-    public void saveCollectData() throws IOException {
+    public Boolean saveCollectData() throws IOException {
         if(CurrentCollectUtil.getCollectFilePath() == null){
             Log.e("Data Collect","path null error");
-            return;
+            return false;
+        }
+        if(!isUseCmdGetScreen() && !isCollectIntact()) {
+            Log.e("Data Collect","collect null error");
+            return false;
+        }
+        if(isUseCmdGetScreen() && !isCollectIntactCmd()) {
+            Log.e("Data Collect cmd","collect null error");
+            return false;
         }
         String sdkFileName = "SDK" + "_" + "TreeView(" + CurrentCollectUtil.getInterfaceNum() +").json";
         String sdkFtrFilePath = CurrentCollectUtil.getCollectFilePath() + File.separator + sdkFileName;
@@ -90,6 +101,7 @@ public class CollectDataUtil {
         } else {
             SaveImageUtil.saveAlbum(context, screenPng, Bitmap.CompressFormat.PNG, 100, true, "Screen");
         }
+        return true;
     }
 
     private boolean isUseCmdGetScreen(){

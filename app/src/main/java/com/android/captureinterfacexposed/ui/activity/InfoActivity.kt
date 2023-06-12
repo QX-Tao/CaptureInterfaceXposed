@@ -12,6 +12,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.lifecycle.lifecycleScope
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityInfoBinding
@@ -42,6 +43,8 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
     private lateinit var appName: String
     private lateinit var pkgName: String
     private var isDeleteData: Boolean = false
+    private lateinit var dispatcher: OnBackPressedDispatcher
+    private lateinit var callback: OnBackPressedCallback
 
     override fun onCreate() {
         appName = intent.getStringExtra("app_name").toString()
@@ -50,7 +53,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
 
         val tmp1 = resources.getString(R.string.app_infos)
         binding.includeTitleBarSecond.tvTitle.text = String.format(tmp1,appName,pkgName)
-        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { finish() }
+        binding.includeTitleBarSecond.ivBackButton.setOnClickListener { dispatcher.onBackPressed() }
         binding.includeTitleBarSecond.ivMoreButton.setOnClickListener { showPopupMenu(binding.includeTitleBarSecond.ivMoreButton) }
 
         pageDataHelper = PageDataHelper(this)
@@ -116,26 +119,26 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
             }
             lifecycleScope.launch { exportData() }
         }
-        onBackPressedDispatcher.addCallback(
-            this, // lifecycle owner
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (!isProcessBarStatus) {
-                        if(isMultiSelectMode){
-                            selectedItems.clear()
-                            isMultiSelectMode = false
-                            binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
-                            binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
-                            pageCollectItemAdapter.notifyDataSetChanged()
-                        } else {
-                            val resultIntent = Intent()
-                            resultIntent.putExtra("isDeleteData", isDeleteData)
-                            setResult(RESULT_OK, resultIntent)
-                            finish()
-                        }
+        dispatcher = onBackPressedDispatcher
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (!isProcessBarStatus) {
+                    if(isMultiSelectMode){
+                        selectedItems.clear()
+                        isMultiSelectMode = false
+                        binding.includeTitleBarSecond.includeTitleBarSecond.visibility = View.VISIBLE
+                        binding.includeTitleBarOperate.includeTitleBarOperate.visibility = View.GONE
+                        pageCollectItemAdapter.notifyDataSetChanged()
+                    } else {
+                        val resultIntent = Intent()
+                        resultIntent.putExtra("isDeleteData", isDeleteData)
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
                     }
                 }
-            })
+            }
+        }
+        dispatcher.addCallback(callback)
     }
 
     private fun processData(){
@@ -209,6 +212,7 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
                     intent.putExtra("page_collect_num", pageCollectNum)
                     intent.putExtra("page_collect_data", pageCollectData)
                     intent.putExtra("pkgName",pkgName)
+                    intent.putExtra("appName",appName)
                     startActivityForResult(intent, INFO_REQUEST_CODE)
                 }
             }
