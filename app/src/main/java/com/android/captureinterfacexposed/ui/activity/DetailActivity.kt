@@ -1,6 +1,5 @@
 package com.android.captureinterfacexposed.ui.activity
 
-import android.R.attr
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -23,6 +22,7 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityDetailBinding
@@ -594,6 +594,17 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
             etRenameNum.doAfterTextChanged {
                 slNumText = etRenameNum.text.toString() + ")"
             }
+            etRenameNum.doOnTextChanged{ charSequence, start, _, _ ->
+                if (charSequence.toString().contains(" ")) {
+                    val str: List<String> = charSequence.toString().split(" ")
+                    val sb = StringBuffer()
+                    for (i in str.indices) {
+                        sb.append(str[i])
+                    }
+                    etRenameNum.setText(sb.toString())
+                    etRenameNum.setSelection(start)
+                }
+            }
             runOnUiThread {
                 val uri: Uri? = data?.data
                 val fileName = URLDecoder.decode(uri.toString(),"UTF-8")
@@ -601,14 +612,7 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
                 tvFileUri.text = fileName
                 builder.setTitle(getString(R.string.rename_file))
                     .setView(dialogView)
-                    .setPositiveButton(getString(R.string.confirm)){ _,_ ->
-                        FileUtils.rename(filePath.toString() + File.separator + fileName,
-                            "$slTypeText$slNumText." + fileName.split(".").last()
-                        )
-                        detailList = null
-                        binding.detailListView.adapter = null
-                        lifecycleScope.launch { loadData() }
-                    }
+                    .setPositiveButton(getString(R.string.confirm),null)
                     .setNegativeButton(getString(R.string.cancel)){_,_ ->
                         detailList = null
                         binding.detailListView.adapter = null
@@ -625,9 +629,27 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
                         startActivityForResult(intent,FILE_URI_REQUEST_CODE)
                     }
                     .setCancelable(false)
-                    .create()
-                    .show()
+                val dialog = builder.create()
+                dialog.show()
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                    if(etRenameNum.text.isNullOrEmpty()){
+                        Toast.makeText(applicationContext,getString(R.string.enter_correct_num),Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
+                    FileUtils.rename(filePath.toString() + File.separator + fileName,
+                        "$slTypeText$slNumText." + fileName.split(".").last()
+                    )
+                    detailList = null
+                    binding.detailListView.adapter = null
+                    lifecycleScope.launch { loadData() }
+                    dialog.dismiss()
+                }
             }
+        }
+        if(requestCode == FILE_URI_REQUEST_CODE && resultCode == RESULT_CANCELED){
+            detailList = null
+            binding.detailListView.adapter = null
+            lifecycleScope.launch { loadData() }
         }
     }
 }

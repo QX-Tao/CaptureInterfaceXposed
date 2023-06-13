@@ -138,5 +138,5 @@
     <string name="dark">Dark</string>
     <string name="data_error">Data error</string>
     <string name="data_error_desc">There are something wrong in collect \"%1$s\", in \"%2$s\", check \"Confirm\" to check files.</string>
-
+    <string name="enter_correct_num">Please enter a correct number</string>
 </resources>

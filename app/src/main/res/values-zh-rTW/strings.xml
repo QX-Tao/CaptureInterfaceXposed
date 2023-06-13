@@ -137,4 +137,5 @@
     <string name="collect_detail">收集詳情</string>
     <string name="data_error">數據錯誤</string>
     <string name="data_error_desc">"收集“%1$s”出現錯誤，位於“%2$s”，請點擊“確認”以檢查文件。 "</string>
+    <string name="enter_correct_num">請輸入一個正確的數字</string>
 </resources>
