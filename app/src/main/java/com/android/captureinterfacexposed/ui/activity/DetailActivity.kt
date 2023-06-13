@@ -569,7 +569,6 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        // 获取实时截图
         if (requestCode == FILE_URI_REQUEST_CODE && resultCode == RESULT_OK) {
             var filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             filePath = File(filePath.toString() + File.separator + applicationContext.resources.getString(R.string.collect_folder) + File.separator + pkgName + File.separator + pageCollectData)
