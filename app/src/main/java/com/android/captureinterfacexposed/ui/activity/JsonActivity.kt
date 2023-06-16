@@ -47,8 +47,8 @@ class JsonActivity : BaseActivity<ActivityJsonBinding>() {
                         isChanged = true
                         var decodeJson = StringEscapeUtils.unescapeJson(it)
                         decodeJson = decodeJson.substring(1,decodeJson.length - 1)
-                        Toast.makeText(applicationContext, decodeJson, Toast.LENGTH_SHORT).show()
                         saveFile(decodeJson)
+                        Toast.makeText(applicationContext, getString(R.string.save_succeed), Toast.LENGTH_SHORT).show()
                         contentChanged = false
                     }
                 }

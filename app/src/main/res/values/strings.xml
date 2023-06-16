@@ -23,6 +23,8 @@
     <string name="collect_detail">Collect detail</string>
     <string name="more">More</string>
     <string name="save">Save</string>
+    <string name="save_succeed">Save successfully</string>
+    <string name="save_failed">Save failed</string>
     <string name="error">Error</string>
     <string name="data_changed">Data Changed</string>
     <string name="data_changed_desc">Do you want to save the file?</string>
