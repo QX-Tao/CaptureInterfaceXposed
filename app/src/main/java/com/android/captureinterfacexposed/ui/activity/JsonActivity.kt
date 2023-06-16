@@ -167,6 +167,13 @@ class JsonActivity : BaseActivity<ActivityJsonBinding>() {
             .show()
     }
 
+    override fun onDestroy() {
+        binding.webView.destroy()
+        binding.webView.removeAllViews()
+        binding.webView.clearCache(true)
+        super.onDestroy()
+    }
+
     private fun saveFile(jsonStr: String){
         val jsonFile = File(jsonFilePath)
         if (FileUtils.isFileExists("$jsonFilePath.bak"))
