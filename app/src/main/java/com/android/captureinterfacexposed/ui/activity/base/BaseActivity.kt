@@ -50,7 +50,7 @@ abstract class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         ResourcesCompat.getColor(resources, R.color.colorThemeBackground, null).also {
             window?.statusBarColor = it
             window?.navigationBarColor = it
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) window?.navigationBarDividerColor = it
+            window?.navigationBarDividerColor = it
         }
         /**
          * Init children

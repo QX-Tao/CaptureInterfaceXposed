@@ -13,10 +13,11 @@
         android:scaleType="centerCrop"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
+        android:longClickable="false"
         app:shapeAppearanceOverlay="@style/RoundStyleR5"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
         android:layout_marginStart="12dp"
@@ -26,59 +27,95 @@
 
         <RelativeLayout
             android:id="@+id/rl_accessibility"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
+            android:longClickable="false"
             android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/accessibility_desc_text_view"
-                android:layout_width="wrap_content"
-                android:text="@string/accessibility_collects"
+            <LinearLayout
+                android:id="@+id/ll_accessibility_top"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@color/secondTextColor"
-                android:layout_alignParentStart="true"/>
+                android:layout_alignParentStart="true">
+
+                <ImageView
+                    android:id="@+id/iv_edit_accessibility"
+                    android:src="@drawable/ic_edit"
+                    android:scaleType="centerCrop"
+                    android:padding="2dp"
+                    android:layout_marginEnd="3dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"/>
+
+                <TextView
+                    android:id="@+id/accessibility_desc_text_view"
+                    android:layout_width="wrap_content"
+                    android:text="@string/accessibility_collects"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondTextColor"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/accessibility_text_view"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/firstTextColor"
                 android:textSize="15sp"
                 android:lines="4"
                 android:ellipsize="end"
-                android:layout_below="@id/accessibility_desc_text_view"
-                android:layout_alignStart="@id/accessibility_desc_text_view"
+                android:layout_below="@id/ll_accessibility_top"
+                android:layout_alignParentStart="true"
                 android:layout_marginTop="2dp"/>
 
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/rl_sdk"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:longClickable="false"
             android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/sdk_desc_text_view"
-                android:layout_width="wrap_content"
-                android:text="@string/sdk_collects"
+            <LinearLayout
+                android:id="@+id/ll_sdk_top"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@color/secondTextColor"
-                android:layout_alignParentStart="true"/>
+                android:layout_alignParentStart="true">
+
+                <ImageView
+                    android:id="@+id/iv_edit_sdk"
+                    android:src="@drawable/ic_edit"
+                    android:scaleType="centerCrop"
+                    android:padding="2dp"
+                    android:layout_marginEnd="3dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"/>
+
+                <TextView
+                    android:id="@+id/sdk_desc_text_view"
+                    android:layout_width="wrap_content"
+                    android:text="@string/sdk_collects"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="@color/secondTextColor"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/sdk_text_view"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/firstTextColor"
                 android:textSize="15sp"
                 android:lines="4"
                 android:ellipsize="end"
-                android:layout_below="@id/sdk_desc_text_view"
-                android:layout_alignStart="@id/sdk_desc_text_view"
+                android:layout_below="@id/ll_sdk_top"
+                android:layout_alignParentStart="true"
                 android:layout_marginTop="2dp"/>
 
         </RelativeLayout>

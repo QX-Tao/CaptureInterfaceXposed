@@ -7,7 +7,7 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 /**
- * @author: panyitao
+ * @author: PanYiTao
  * @date: 2022/08/16 22:27
  * @description: SharedPreferences Tool.
  */

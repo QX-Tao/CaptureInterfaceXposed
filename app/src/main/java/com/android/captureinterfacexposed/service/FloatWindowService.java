@@ -1,6 +1,5 @@
 package com.android.captureinterfacexposed.service;
 
-import static android.content.ContentValues.TAG;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 

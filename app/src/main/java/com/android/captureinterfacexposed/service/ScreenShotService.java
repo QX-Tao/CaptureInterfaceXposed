@@ -76,9 +76,9 @@ public class ScreenShotService extends Service {
 
     class ScreenShotTask implements Runnable {
 
-        private Intent data;
+        private final Intent data;
 
-        private int resultCode;
+        private final int resultCode;
 
         public ScreenShotTask(Intent data, int resultCode) {
             this.data = data;

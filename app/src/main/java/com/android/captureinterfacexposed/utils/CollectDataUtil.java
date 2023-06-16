@@ -7,9 +7,11 @@ import android.util.Log;
 import com.android.captureinterfacexposed.application.DefaultApplication;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class CollectDataUtil {
     private static CollectDataUtil instance = null;
@@ -17,6 +19,8 @@ public class CollectDataUtil {
     private String accessibleJson;
     private Bitmap screenPng;
     private final Context context;
+    private static final ReentrantLock sdkLock = new ReentrantLock();
+    private static final ReentrantLock accessibleLock = new ReentrantLock();
 
     private CollectDataUtil(Context context) {
         this.context = context.getApplicationContext();
@@ -82,18 +86,26 @@ public class CollectDataUtil {
         String sdkFileName = "SDK" + "_" + "TreeView(" + CurrentCollectUtil.getInterfaceNum() +").json";
         String sdkFtrFilePath = CurrentCollectUtil.getCollectFilePath() + File.separator + sdkFileName;
         File sdkSaveFile = new File(sdkFtrFilePath);
-        RandomAccessFile sdkRaf = new RandomAccessFile(sdkSaveFile, "rwd");
-        sdkRaf.seek(sdkSaveFile.length());
-        sdkRaf.write(sdkJson.getBytes());
-        sdkRaf.close();
+        FileOutputStream sdkFileOutputStream = new FileOutputStream(sdkSaveFile, true);
+        sdkLock.lock();
+        try (sdkFileOutputStream; FileChannel sdkFileChannel = sdkFileOutputStream.getChannel()) {
+            ByteBuffer byteBuffer = ByteBuffer.wrap(sdkJson.getBytes());
+            sdkFileChannel.write(byteBuffer);
+        } finally {
+            sdkLock.unlock();
+        }
 
         String accessibleFileName = "无障碍" + "_" + "TreeView(" + CurrentCollectUtil.getInterfaceNum() + ").json";
         String accessibleFilePath = CurrentCollectUtil.getCollectFilePath() + File.separator + accessibleFileName;
         File accessibleSaveFile = new File(accessibleFilePath);
-        RandomAccessFile accessRaf = new RandomAccessFile(accessibleSaveFile, "rwd");
-        accessRaf.seek(accessibleSaveFile.length());
-        accessRaf.write(accessibleJson.getBytes());
-        accessRaf.close();
+        FileOutputStream accessFileOutputStream = new FileOutputStream(accessibleSaveFile, true);
+        accessibleLock.lock();
+        try (accessFileOutputStream; FileChannel accessibleChannel = accessFileOutputStream.getChannel()){
+            ByteBuffer byteBuffer = ByteBuffer.wrap(accessibleJson.getBytes());
+            accessibleChannel.write(byteBuffer);
+        } finally {
+            accessibleLock.unlock();
+        }
 
         if(isUseCmdGetScreen()) {
             String screenName = "Screen(" + CurrentCollectUtil.getInterfaceNum() + ").png";

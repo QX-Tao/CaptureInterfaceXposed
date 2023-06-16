@@ -63,4 +63,5 @@ dependencies {
     implementation 'com.blankj:utilcodex:1.31.1'
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'org.apache.commons:commons-text:1.9'
+    implementation 'com.squareup.okio:okio:3.3.0'
 }

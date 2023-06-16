@@ -21,6 +21,13 @@
     <string name="settings">设置</string>
     <string name="collect_result">收集结果</string>
     <string name="more">更多</string>
+    <string name="save">保存</string>
+    <string name="error">错误</string>
+    <string name="data_changed">数据已更改</string>
+    <string name="data_changed_desc">是否保存文件？</string>
+    <string name="save_and_exit">保存并退出</string>
+    <string name="do_not_save">不保存</string>
+    <string name="edit_json">编辑数据</string>
     <string name="refresh_list">刷新列表</string>
     <string name="system_ui">界面设置</string>
     <string name="sync_data">同步设置</string>

@@ -22,6 +22,13 @@
     <string name="collect_result">Collect result</string>
     <string name="collect_detail">Collect detail</string>
     <string name="more">More</string>
+    <string name="save">Save</string>
+    <string name="error">Error</string>
+    <string name="data_changed">Data Changed</string>
+    <string name="data_changed_desc">Do you want to save the file?</string>
+    <string name="save_and_exit">Save and exit</string>
+    <string name="do_not_save">Do not save</string>
+    <string name="edit_json">Edit Json</string>
     <string name="refresh_list">Refresh list</string>
     <string name="system_ui">UI Settings</string>
     <string name="sync_data">Sync Settings</string>

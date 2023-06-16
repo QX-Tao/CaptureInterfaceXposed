@@ -13,7 +13,9 @@ import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.RelativeLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -47,6 +49,8 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
         private var mid by Delegates.notNull<Long>()
         @JvmStatic
         private val FILE_URI_REQUEST_CODE = 99
+        @JvmStatic
+        private val DETAIL_REQUEST_CODE = 100
     }
     private lateinit var pageCollectNum: String
     private lateinit var pageCollectData: String
@@ -408,6 +412,18 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
                 intent.putExtra("screenPath",screenPath)
                 startActivity(intent, bundle)
             }
+            holder.llAccessibility.setOnClickListener {
+                val jsonFilePath = getFilePath(Companion.detailList?.get(position)?.accessibilityFileName)
+                val intent = Intent(applicationContext,JsonActivity::class.java)
+                intent.putExtra("jsonFilePath", jsonFilePath)
+                startActivityForResult(intent,DETAIL_REQUEST_CODE)
+            }
+            holder.llSdk.setOnClickListener {
+                val jsonFilePath = getFilePath(Companion.detailList?.get(position)?.sdkFileName)
+                val intent = Intent(applicationContext,JsonActivity::class.java)
+                intent.putExtra("jsonFilePath", jsonFilePath)
+                startActivityForResult(intent,DETAIL_REQUEST_CODE)
+            }
             // 如果处于多选状态，则根据选中状态设置背景颜色
             if (isMultiSelectMode) {
                 if (selectedItems.contains(position)) {
@@ -425,6 +441,8 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
             val sdkText: TextView = view.findViewById(R.id.sdk_text_view)
             val accessibilityDescText: TextView = view.findViewById(R.id.accessibility_desc_text_view)
             val sdkDescText: TextView = view.findViewById(R.id.sdk_desc_text_view)
+            val llSdk: LinearLayout = view.findViewById(R.id.ll_sdk_top)
+            val llAccessibility: LinearLayout = view.findViewById(R.id.ll_accessibility_top)
         }
     }
 
@@ -612,7 +630,7 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
                 builder.setTitle(getString(R.string.rename_file))
                     .setView(dialogView)
                     .setPositiveButton(getString(R.string.confirm),null)
-                    .setNegativeButton(getString(R.string.cancel)){_,_ ->
+                    .setNegativeButton(getString(R.string.cancel)) {_, _ ->
                         detailList = null
                         binding.detailListView.adapter = null
                         lifecycleScope.launch { loadData() }
@@ -649,6 +667,14 @@ class DetailActivity : BaseActivity<ActivityDetailBinding>() {
             detailList = null
             binding.detailListView.adapter = null
             lifecycleScope.launch { loadData() }
+        }
+        if(requestCode == DETAIL_REQUEST_CODE && resultCode == RESULT_OK){
+            val isChanged = data!!.getBooleanExtra("isChanged", false)
+            if(isChanged){
+                detailList = null
+                binding.detailListView.adapter = null
+                lifecycleScope.launch { loadData() }
+            }
         }
     }
 }
