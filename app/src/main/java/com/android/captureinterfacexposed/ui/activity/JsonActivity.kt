@@ -4,15 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.os.Build
 import android.webkit.JavascriptInterface
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.webkit.WebSettingsCompat
@@ -21,7 +18,6 @@ import androidx.webkit.WebViewFeature.isFeatureSupported
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityJsonBinding
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
-import com.android.captureinterfacexposed.utils.factory.isSystemInDarkMode
 import com.blankj.utilcode.util.FileIOUtils
 import com.blankj.utilcode.util.FileUtils
 import com.demo.jsonpreviewer.EditJsonViewModel
