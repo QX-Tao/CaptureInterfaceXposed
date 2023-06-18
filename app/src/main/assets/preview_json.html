@@ -19,13 +19,13 @@
   		border:none;
         line-height: 1.8;
     }
-    #json-btn {
-        display: flex;
-        align-items: center;
-        font-size: 18px;
-  		width:100%;
-  		padding: 10;
+    @media (prefers-color-scheme: dark) {
+        body, #json-display{ background:  #2D2D2D; }
     }
+    @media (prefers-color-scheme: light) {
+        body, #json-display{ background: #FFFFFF; }
+    }
+
 </style>
 <body>
 <div style="padding: 2px 2px 2px 2px;">

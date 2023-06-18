@@ -3,17 +3,25 @@ package com.android.captureinterfacexposed.ui.activity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.os.Build
 import android.webkit.JavascriptInterface
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
+import androidx.webkit.WebViewFeature.isFeatureSupported
 import com.android.captureinterfacexposed.R
 import com.android.captureinterfacexposed.databinding.ActivityJsonBinding
 import com.android.captureinterfacexposed.ui.activity.base.BaseActivity
+import com.android.captureinterfacexposed.utils.factory.isSystemInDarkMode
 import com.blankj.utilcode.util.FileIOUtils
 import com.blankj.utilcode.util.FileUtils
 import com.demo.jsonpreviewer.EditJsonViewModel
@@ -113,6 +121,7 @@ class JsonActivity : BaseActivity<ActivityJsonBinding>() {
                 viewModel.loadConfig(this@JsonActivity)
             }
         }
+
         binding.webView.loadUrl("file:///android_asset/preview_json.html")
     }
 
@@ -125,6 +134,14 @@ class JsonActivity : BaseActivity<ActivityJsonBinding>() {
             useWideViewPort = true
             builtInZoomControls = true
             displayZoomControls = false
+            if ((resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES) {
+                if (isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(binding.webView.settings, true)
+                } else if (isFeatureSupported(WebViewFeature.FORCE_DARK)) {
+                    @Suppress("DEPRECATION")
+                    WebSettingsCompat.setForceDark(binding.webView.settings, WebSettingsCompat.FORCE_DARK_ON)
+                }
+            }
         }
         binding.webView.addJavascriptInterface(JsInterface(this@JsonActivity), "json_parse")
     }

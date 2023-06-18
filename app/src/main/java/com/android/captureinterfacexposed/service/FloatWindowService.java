@@ -56,8 +56,10 @@ public class FloatWindowService {
     private static final String APPLICATION_PACKAGE_NAME = "com.android.captureinterfacexposed";
     private static final String SCREEN_SHOT_TAG = "screenShot";
     private static final String DUMP_VIEW_TREE_TAG = "dumpViewTree";
+    private static final String SELECT_APP_NAME = "select_app_name";
+    private static final String SELECT_PACKAGE_NAME = "select_package_name";
     private PageDataHelper mDbHelper;
-    private final Context context;
+    private Context context;
     private WindowManager windowManager;
     private View floatingView;
     private View floatListView;
@@ -356,6 +358,8 @@ public class FloatWindowService {
             String packageName = pageItemList.get(position).packageName;
             DefaultApplication.killApp(CurrentCollectUtil.getCollectPackageName());
             DefaultApplication.enableHookByLSP(APPLICATION_PACKAGE_NAME, packageName);
+            ShareUtil.putString(context.getApplicationContext(), SELECT_APP_NAME,getAppNameByPkgName(packageName));
+            ShareUtil.putString(context.getApplicationContext(),SELECT_PACKAGE_NAME,packageName);
             CurrentCollectUtil.setCollectPackageName(packageName);
             CurrentCollectUtil.setRightButtonClickable(false);
             isDisplayPageItemList = false;

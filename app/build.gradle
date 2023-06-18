@@ -64,4 +64,5 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'org.apache.commons:commons-text:1.9'
     implementation 'com.squareup.okio:okio:3.3.0'
+    implementation("androidx.webkit:webkit:1.6.0")
 }
