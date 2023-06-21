@@ -1,7 +1,9 @@
 package com.android.captureinterfacexposed.hook
 
 import android.app.Activity
+import android.app.AndroidAppHelper
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
@@ -63,6 +65,24 @@ class HookEntry : IYukiHookXposedInit {
                                 override fun afterHookedMethod(param: MethodHookParam) {
                                     Automation.enable(1)
                                     super.afterHookedMethod(param)
+                                }
+                            }
+                        )
+
+                        // hook onresume
+                        XposedHelpers.findAndHookMethod(
+                            Activity::class.java, "onResume", object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    val activity = param.thisObject as Activity
+                                    val currentActivityName = activity.javaClass.name
+                                    val intent = Intent("com.captureinterface.current_activity_name")
+                                    intent.putExtra("activity_name", currentActivityName)
+                                    XposedHelpers.callMethod(
+                                        AndroidAppHelper.currentApplication(),
+                                        "sendBroadcast",
+                                        intent
+                                    )
+                                    Log.d("HookEntry", "Current activity: $currentActivityName")
                                 }
                             }
                         )

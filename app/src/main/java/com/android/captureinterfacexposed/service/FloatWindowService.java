@@ -24,6 +24,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -212,6 +213,11 @@ public class FloatWindowService {
             if(!CurrentCollectUtil.isLeftButtonClickable()){
                 return;
             }
+            if(isClick == 1 && !CollectDataUtil.getInstance(context.getApplicationContext()).isSameActivity()) {
+                int tgNum = CurrentCollectUtil.getInterfaceNum() - 1;
+                CurrentCollectUtil.setInterfaceNum(tgNum);
+                return;
+            }
             if(CurrentCollectUtil.isRightButtonClickable()){
                 CollectDataUtil collectDataUtil = CollectDataUtil.getInstance(context.getApplicationContext());
                 collectDataUtil.initCollectData();
@@ -252,6 +258,7 @@ public class FloatWindowService {
                                 newDirectory(clickFilePath, dateStr);
                                 CurrentCollectUtil.setCollectFilePath(clickFilePath + File.separator  + dateStr);
                                 if(!collectDataUtil.saveCollectData()) return;
+                                collectDataUtil.saveActivityNameToFile();
 
                                 long pageId = mDbHelper.getPageIdByPkgName(CurrentCollectUtil.getCollectPackageName()); // 根据包名查pageId
                                 if(pageId == -1) { // 未记录

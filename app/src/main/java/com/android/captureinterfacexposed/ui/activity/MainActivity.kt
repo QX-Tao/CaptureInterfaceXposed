@@ -3,9 +3,11 @@ package com.android.captureinterfacexposed.ui.activity
 import android.Manifest
 import android.app.Activity
 import android.app.ProgressDialog
+import android.content.BroadcastReceiver
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -33,6 +35,7 @@ import com.android.captureinterfacexposed.utils.CurrentCollectUtil
 import com.android.captureinterfacexposed.utils.ShareUtil
 import com.highcapable.yukihookapi.YukiHookAPI
 
+
 class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     companion object{
@@ -50,11 +53,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         private val SELECT_APP_NAME = "select_app_name"
         @JvmStatic
         private val SELECT_PACKAGE_NAME = "select_package_name"
+        @JvmStatic
+        var currentActivityName: String? = null
     }
 
     private var isServiceStart = false
     private var floatingView = FloatWindowService(this)
     private lateinit var loadingDialog: ProgressDialog
+    private lateinit var receiver: BroadcastReceiver
 
     private val startSelectAppActivityForResult = registerForActivityResult(SelectAppActivityResultContract()){ result ->
         result?.let {
@@ -174,6 +180,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 Toast.makeText(applicationContext,getString(R.string.service_not_enable),Toast.LENGTH_SHORT).show()
             }
         }
+
+        receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                currentActivityName = intent.getStringExtra("activity_name")
+            }
+        }
+        val filter = IntentFilter("com.captureinterface.current_activity_name")
+        registerReceiver(receiver, filter)
 
     }
 
@@ -732,5 +746,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
         super.onResume()
         refreshSelectStatus()
         refreshModuleStatus()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
     }
 }

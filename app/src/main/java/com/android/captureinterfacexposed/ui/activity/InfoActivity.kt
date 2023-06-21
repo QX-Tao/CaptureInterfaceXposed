@@ -428,7 +428,8 @@ class InfoActivity : BaseActivity<ActivityInfoBinding>(){
 
     private suspend fun delData() {
         inProcessBar()
-        withContext(Dispatchers.IO) {                    val itemsToRemove = mutableListOf<String?>()
+        withContext(Dispatchers.IO) {
+            val itemsToRemove = mutableListOf<String?>()
             selectedItems.forEach {
                 itemsToRemove.add(pageCollectItemList!![it].pageCollectData)
             }

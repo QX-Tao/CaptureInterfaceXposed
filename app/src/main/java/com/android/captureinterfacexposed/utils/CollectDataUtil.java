@@ -5,12 +5,20 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.android.captureinterfacexposed.application.DefaultApplication;
+import com.android.captureinterfacexposed.hook.HookEntry;
+import com.android.captureinterfacexposed.hook.UIHierarchyHook;
+import com.android.captureinterfacexposed.ui.activity.MainActivity;
+import com.blankj.utilcode.util.FileUtils;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CollectDataUtil {
@@ -119,6 +127,40 @@ public class CollectDataUtil {
     private boolean isUseCmdGetScreen(){
         return ShareUtil.getBoolean(context.getApplicationContext(), "use_cmd", false) &&
                 ShareUtil.getBoolean(context.getApplicationContext(),"lsp_hook",false);
+    }
+
+    public void saveActivityNameToFile(){
+        String filePath = CurrentCollectUtil.getCollectFilePath() + File.separator + "Activity_" + MainActivity.getCurrentActivityName();
+        FileUtils.createOrExistsFile(filePath);
+    }
+    public boolean isSameActivity(){
+        String filePath = CurrentCollectUtil.getCollectFilePath();
+        if (filePath == null) return false;
+        String currentActivity = MainActivity.getCurrentActivityName();
+        String localSaveActivity = null;
+        List<String> filesName = getFileNames(filePath);
+        for (int i = 0; i < filesName.size(); i++){
+            if(filesName.get(i).contains("Activity_")){
+                localSaveActivity = filesName.get(i).substring(9);
+                break;
+            }
+        }
+        assert currentActivity != null;
+        return currentActivity.equals(localSaveActivity);
+    }
+
+    private List<String> getFileNames(String path) {
+        File dir = new File(path);
+        File[] files = dir.listFiles(File::isFile);
+        if (files != null) {
+            List<String> fileNames = new ArrayList<>();
+            for (File file : files) {
+                fileNames.add(file.getName());
+            }
+            return fileNames;
+        } else {
+            return Collections.emptyList();
+        }
     }
 }
 
