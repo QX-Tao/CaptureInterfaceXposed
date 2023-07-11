@@ -181,6 +181,7 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
         // 处理事件的应用程序包名称
         info.packageNames = new String[]{};
         info.flags = AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
+                | AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS
                 | AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS
                 | AccessibilityServiceInfo.FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY
                 | AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
