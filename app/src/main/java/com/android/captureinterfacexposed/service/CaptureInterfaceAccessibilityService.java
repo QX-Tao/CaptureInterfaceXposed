@@ -132,6 +132,7 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
         }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("index", index);
+        jsonObject.put("isImportantForAccessibility", node.isImportantForAccessibility());
         String resourceId = node.getViewIdResourceName();
         if (resourceId != null) jsonObject.put("resourceId", resourceId);
         jsonObject.put("class", node.getClassName());
