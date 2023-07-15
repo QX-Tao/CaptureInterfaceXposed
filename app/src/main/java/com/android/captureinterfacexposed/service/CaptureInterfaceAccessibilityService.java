@@ -50,7 +50,7 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
                 if (rootNode != null) {
                     // 遍历整个控件树
                     try {
-                        JSONObject jsonObject = accessibilityNodeInfoToJson(rootNode, 0);
+                        JSONObject jsonObject = accessibilityNodeInfoToJson(rootNode);
                         Log.d("Accessible JSON", jsonObject.toString());
                         CollectDataUtil.getInstance(getApplicationContext()).setAccessibleJson(jsonObject.toString());
                     } catch (JSONException e) {
@@ -126,12 +126,11 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
      * @return JSONObject
      * @throws JSONException
      */
-    public JSONObject accessibilityNodeInfoToJson(AccessibilityNodeInfo node, int index) throws JSONException {
+    public JSONObject accessibilityNodeInfoToJson(AccessibilityNodeInfo node) throws JSONException {
         if (node == null) {
             return null;
         }
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("index", index);
         jsonObject.put("isImportantForAccessibility", node.isImportantForAccessibility());
         String resourceId = node.getViewIdResourceName();
         if (resourceId != null) jsonObject.put("resourceId", resourceId);
@@ -152,7 +151,7 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
         JSONArray children = new JSONArray();
         for (int i = 0; i < node.getChildCount(); i++) {
             AccessibilityNodeInfo child = node.getChild(i);
-            JSONObject childNodeJSONObj = accessibilityNodeInfoToJson(child, i);
+            JSONObject childNodeJSONObj = accessibilityNodeInfoToJson(child);
             if (childNodeJSONObj != null) {
                 children.put(childNodeJSONObj);
             }
