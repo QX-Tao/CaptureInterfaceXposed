@@ -153,6 +153,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 when(getWorkModeStatus()){
                     -1 ->{
                         CurrentCollectUtil.setLeftButtonClickable(true)
+                        CurrentCollectUtil.setRightButtonClickable(false)
                         val intent = Intent(Intent.ACTION_MAIN)
                         intent.addCategory(Intent.CATEGORY_HOME)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK

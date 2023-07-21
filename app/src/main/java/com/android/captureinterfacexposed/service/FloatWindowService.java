@@ -1,5 +1,6 @@
 package com.android.captureinterfacexposed.service;
 
+import static android.content.ContentValues.TAG;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
@@ -204,6 +205,7 @@ public class FloatWindowService {
             if(id == R.id.iv_first){
                 CurrentCollectUtil.setInterfaceNum(1);
                 CurrentCollectUtil.setRightButtonClickable(true);
+                Log.d(TAG, "COME");
                 isClick = 0;
             } else if (id == R.id.iv_second){
                 int tgNum = CurrentCollectUtil.getInterfaceNum() + 1;

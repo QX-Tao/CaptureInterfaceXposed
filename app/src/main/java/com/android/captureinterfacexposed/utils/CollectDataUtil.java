@@ -134,6 +134,7 @@ public class CollectDataUtil {
         FileUtils.createOrExistsFile(filePath);
     }
     public boolean isSameActivity(){
+        if (!ShareUtil.getBoolean(context.getApplicationContext(),"lsp_hook",false)) return true;
         String filePath = CurrentCollectUtil.getCollectFilePath();
         if (filePath == null) return false;
         String currentActivity = MainActivity.getCurrentActivityName();

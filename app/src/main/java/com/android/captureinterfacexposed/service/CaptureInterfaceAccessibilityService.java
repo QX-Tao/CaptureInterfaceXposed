@@ -48,6 +48,14 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
                 // 获取当前活动窗口的根节点
                 AccessibilityNodeInfo rootNode = getRootInActiveWindow();
                 if (rootNode != null) {
+//                    long startT = System.currentTimeMillis();
+//                    try {
+//                        accessibilityNodeInfoToJson(rootNode);
+//                    } catch (JSONException e) {
+//                        throw new RuntimeException(e);
+//                    } finally {
+//                        Log.d("accessibility cost time", (System.currentTimeMillis() - startT) + " ms");
+//                    }
                     // 遍历整个控件树
                     try {
                         JSONObject jsonObject = accessibilityNodeInfoToJson(rootNode);
