@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -175,26 +176,14 @@ public class CaptureInterfaceAccessibilityService extends AccessibilityService {
     public void onInterrupt() {
     }
 
-
-    /**
-     * 注册AccessibilityServiceInfo
-     */
-    @Override
-    protected void onServiceConnected() {
-        AccessibilityServiceInfo info = new AccessibilityServiceInfo();
-        // 处理事件的类型
-        info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
-        // 反馈的类型
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-        // 处理事件的应用程序包名称
-        info.packageNames = new String[]{};
-        info.flags = AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
-                | AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS
-                | AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS
-                | AccessibilityServiceInfo.FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY
-                | AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
-        info.notificationTimeout = 100;
-        setServiceInfo(info);
+    private AccessibilityNodeInfo getDecorViewNode(AccessibilityNodeInfo node){
+        for (int i = 0;i<node.getChildCount();i++){
+            var child = node.getChild(i);
+            if (Objects.equals("android:id/content", child.getViewIdResourceName())) return child;
+            var decorViewNode = getDecorViewNode(child);
+            if (decorViewNode != null) return decorViewNode;
+        }
+        return null;
     }
 
 
